@@ -15,7 +15,7 @@ use App\Traits\HttpResponse;
 class AuthController extends Controller
 {
     use ArrayPaginator, HttpResponse;
-    
+
     public function login(Request $request, User $user)
     {
         $isLoginSuccess = $user->isLoginValid($request->userid, $request->password);
@@ -30,10 +30,10 @@ class AuthController extends Controller
         else
         {
             $userData = User::where('userid', $request->userid)->first();
-            
+
             DB::beginTransaction();
 
-            try 
+            try
             {
 
                 $token = $userData->createToken('API Token');
@@ -48,7 +48,7 @@ class AuthController extends Controller
                     'token' => $token->plainTextToken
                 ]);
 
-            } 
+            }
             catch (\Exception $e)
             {
                 DB::rollBack();
@@ -56,7 +56,7 @@ class AuthController extends Controller
                 return $this->responseError($e->getMessage(), 400);
             }
 
-            
+
 
         }
     }
@@ -68,8 +68,8 @@ class AuthController extends Controller
         $tokenableId = $currentAccessToken['tokenable_id'];
 
         DB::beginTransaction();
-        
-        try 
+
+        try
         {
 
             $user->deleteData(['tokenable_id' => $tokenableId]);
@@ -80,8 +80,8 @@ class AuthController extends Controller
                 'success' => true,
                 'message' => 'Logout success'
             ]);
-        
-        } 
+
+        }
         catch (\Exception $e)
         {
             DB::rollBack();
@@ -89,6 +89,6 @@ class AuthController extends Controller
             return $this->responseError($e->getMessage(), 400);
         }
 
-        
+
     }
 }

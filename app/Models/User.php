@@ -14,7 +14,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'sysmsuser';
+    protected $table = 'msuser';
 
     public $timestamps = false;
 
@@ -23,12 +23,12 @@ class User extends Authenticatable
         $cryptedPassword = '';
         $rotate = 41;
 
-        for ($i = 0; $i < strlen($password); $i = $i + 1) 
+        for ($i = 0; $i < strlen($password); $i = $i + 1)
         {
             $baru[$i] = substr($password,$i,1);
         }
 
-        for ( $i = 0; $i < strlen($password); $i = $i + 1 ) 
+        for ( $i = 0; $i < strlen($password); $i = $i + 1 )
         {
             $asc = ord($baru[$i]);
             $asc = $asc + (($i + 1) * $rotate);
@@ -48,7 +48,7 @@ class User extends Authenticatable
         $password = $this::myCrypt($password);
 
         $result = DB::selectOne(
-            'SELECT userid FROM sysmsuser WHERE userid = :userid AND passwd = :password',
+            'SELECT userid FROM msuser WHERE userid = :userid AND pass = :password',
             [
                 'userid' => $userid,
                 'password' => $password
@@ -78,7 +78,7 @@ class User extends Authenticatable
     function updateData($id)
     {
         $updated = DB::update(
-            'update personal_access_tokens set expires_at=dateadd(day,1,created_at),namauser=(select userid from sysmsuser where id=tokenable_id ) where id=:id',
+            'update personal_access_tokens set expires_at=dateadd(day,1,created_at),namauser=(select userid from msuser where id=tokenable_id ) where id=:id',
             [
                 'id' => $id
             ]
