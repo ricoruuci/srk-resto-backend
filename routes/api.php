@@ -15,7 +15,7 @@ Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanct
 
 Route::get('waiter', [WaiterController::class, 'getListData'])->middleware('auth:sanctum');
 Route::get('menu', [MenuController::class, 'getListData'])->middleware('auth:sanctum');
-Route::get('meja', [MejaController::class, 'getListMeja'])->middleware('auth:sanctum');
+Route::get('meja', [MejaController::class, 'getListData'])->middleware('auth:sanctum');
 Route::get('bank', [BankController::class, 'getListData'])->middleware('auth:sanctum');
 
 Route::post('penjualan', [JualController::class, 'insertData'])->middleware('auth:sanctum');

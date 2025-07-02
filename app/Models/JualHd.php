@@ -74,7 +74,7 @@ class JualHd extends BaseModel
             PayType = :paytype,
             KdCard = :kdcard,
             NoCard = :nocard,
-            BankId = :bankid
+            BankId = :bankid,
             FgBayar = 'Y'
             WHERE nota = :nota",
             [

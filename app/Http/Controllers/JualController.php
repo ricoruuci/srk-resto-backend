@@ -253,7 +253,7 @@ class JualController extends Controller
     {
         $model_header = new JualHd();
 
-        $cek = $model_header->cekData($request->nota_jual ?? '');
+        $cek = $model_header->cekData($request->nota_jual);
 
         if ($cek == false) {
 
@@ -263,11 +263,11 @@ class JualController extends Controller
         $params = [
             'nota_jual' => $request->nota_jual,
             'paytype' => $request->payment_type ?? 0,
-            'bankid' => $request->bank_id ?? '',
+            'bank_id' => $request->bank_id ?? '',
             'kdcard' => $request->payment_code ?? '',
             'nocard' => $request->payment_card_number ?? '',
         ];
-
+        // dd($params);
         if ($request->payment_type == 1 || $request->payment_type == 2) {
 
             $model_bank = new Bank();
