@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Jual;
+namespace App\Http\Requests\Menu;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdatePaymentRequest extends FormRequest
+class GetRequestById extends FormRequest
 {
     public function authorize()
     {
@@ -14,8 +14,7 @@ class UpdatePaymentRequest extends FormRequest
     public function rules()
     {
         return [
-            'nota_jual' => 'required|string',
-            'payment_type' => 'required|in:0,1,2,3',
+            'menu_id' => 'required|string',
         ];
     }
 }

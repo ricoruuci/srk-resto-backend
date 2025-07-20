@@ -15,7 +15,6 @@ class InsertRequest extends FormRequest
     {
         return [
             'transdate' => 'required',
-            'waiter' => 'required|string',
             'nomor_meja' => 'required|string',
             'cashier' => 'required|string',
             'note' => 'nullable|string',

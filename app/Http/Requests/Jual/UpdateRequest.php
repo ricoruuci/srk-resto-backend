@@ -16,7 +16,6 @@ class UpdateRequest extends FormRequest
         return [
             'nota_jual' => 'required|string',
             'transdate' => 'required',
-            'waiter' => 'required|string',
             'nomor_meja' => 'required|string',
             'cashier' => 'required|string',
             'note' => 'nullable|string',

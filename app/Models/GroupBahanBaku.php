@@ -8,21 +8,21 @@ use Illuminate\Support\Facades\DB;
 use App\Models\BaseModel;
 use function PHPUnit\Framework\isNull;
 
-class GroupMenu extends BaseModel
+class GroupBahanBaku extends BaseModel
 {
     use HasFactory;
 
-    protected $table = 'msgroupmenu';
+    protected $table = 'msgroupbb';
 
     public $timestamps = false;
 
     function getAllData($params)
     {
         $result = DB::select(
-            "SELECT kdgroupmenu as group_menu_id,nmgroupmenu as group_menu_name,upddate,upduser 
-            from msgroupmenu 
-            where nmgroupmenu like :search_keyword
-            order by kdgroupmenu ",
+            "SELECT a.kdgroupbb as group_bahan_baku_id, a.nmgroupbb as group_bahan_baku_name, a.upddate, a.upduser
+            FROM msgroupbb a
+            WHERE a.nmgroupbb LIKE :search_keyword
+            order by a.nmgroupbb ",
             [
                 'search_keyword' => '%' . $params['search_keyword'] . '%'
             ]
@@ -34,9 +34,9 @@ class GroupMenu extends BaseModel
     function getDataById($id)
     {
         $result = DB::selectOne(
-            "SELECT kdgroupmenu as group_menu_id,nmgroupmenu as group_menu_name,upddate,upduser 
-            from msgroupmenu 
-            where kdgroupmenu = :id",
+            "SELECT a.kdgroupbb as group_bahan_baku_id, a.nmgroupbb as group_bahan_baku_name, a.upddate, a.upduser
+            FROM msgroupbb a
+            WHERE a.kdgroupbb = :id",
             [
                 'id' => $id
             ]
@@ -48,7 +48,7 @@ class GroupMenu extends BaseModel
     function cekData($id)
     {
         $result = DB::selectOne(
-            'SELECT * from msgroupmenu WHERE kdgroupmenu = :id',
+            'SELECT * from msgroupbb WHERE kdgroupbb = :id',
             [
                 'id' => $id
             ]
@@ -60,11 +60,11 @@ class GroupMenu extends BaseModel
     function insertData($params)
     {
         $result = DB::insert(
-            "INSERT INTO msgroupmenu (kdgroupmenu,nmgroupmenu,upddate,upduser) 
-            VALUES (:kdgroupmenu, :nmgroupmenu, getdate(), :upduser)",
+            "INSERT INTO msgroupbb (kdgroupbb, nmgroupbb, upddate, upduser)
+            VALUES (:kdgroupbb, :nmgroupbb, getdate(), :upduser)",
             [
-                'kdgroupmenu' => $params['group_menu_id'],
-                'nmgroupmenu' => $params['group_menu_name'],
+                'kdgroupbb' => $params['group_bahan_baku_id'],
+                'nmgroupbb' => $params['group_bahan_baku_name'],
                 'upduser' => $params['upduser']
             ]
         );
@@ -75,14 +75,14 @@ class GroupMenu extends BaseModel
     function updateData($params)
     {
         $result = DB::update(
-            "UPDATE msgroupmenu SET 
-            nmgroupmenu = :nmgroupmenu, 
-            upddate = getdate(), 
-            upduser = :upduser 
-            WHERE kdgroupmenu = :kdgroupmenu",
+            "UPDATE msgroupbb SET 
+            nmgroupbb = :nmgroupbb,
+            upddate = getdate(),
+            upduser = :upduser
+            WHERE kdgroupbb = :kdgroupbb",
             [
-                'kdgroupmenu' => $params['group_menu_id'],
-                'nmgroupmenu' => $params['group_menu_name'],
+                'kdgroupbb' => $params['group_bahan_baku_id'],
+                'nmgroupbb' => $params['group_bahan_baku_name'],
                 'upduser' => $params['upduser']
             ]
         );
@@ -93,7 +93,7 @@ class GroupMenu extends BaseModel
     function deleteData($id)
     {
         $result = DB::delete(
-            "DELETE FROM msgroupmenu WHERE kdgroupmenu = :id",
+            "DELETE FROM msgroupbb WHERE kdgroupbb = :id",
             [
                 'id' => $id
             ]
@@ -104,7 +104,7 @@ class GroupMenu extends BaseModel
 
     public function beforeAutoNumber()
     {
-        $autoNumber = $this->autoNumber($this->table, 'kdgroupmenu', 'GRM', '0000');
+        $autoNumber = $this->autoNumber($this->table, 'kdgroupbb', 'GBB', '0000');
 
         return $autoNumber;
     }

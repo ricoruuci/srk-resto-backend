@@ -43,16 +43,8 @@ class JualController extends Controller
             return $this->responseError('nomor meja tidak ada atau tidak ditemukan', 400);
         }
 
-        $cek = $model_waiter->cekData($request->waiter ?? '');
-
-        if ($cek == false) {
-
-            return $this->responseError('waiter tidak ada atau tidak ditemukan', 400);
-        }
-
         $params = [
             'transdate' => $request->transdate,
-            'waiter' => $request->waiter,
             'nomor_meja' => $request->nomor_meja,
             'cashier' => Auth::user()->currentAccessToken()['namauser'],
             'note' => $request->note ?? '',
@@ -159,17 +151,9 @@ class JualController extends Controller
             return $this->responseError('nomor meja tidak ada atau tidak ditemukan', 400);
         }
 
-        $cek = $model_waiter->cekData($request->waiter ?? '');
-
-        if ($cek == false) {
-
-            return $this->responseError('waiter tidak ada atau tidak ditemukan', 400);
-        }
-
         $params = [
             'nota_jual' => $request->nota_jual,
             'transdate' => $request->transdate,
-            'waiter' => $request->waiter,
             'nomor_meja' => $request->nomor_meja,
             'cashier' => Auth::user()->currentAccessToken()['namauser'],
             'note' => $request->note ?? '',
@@ -262,10 +246,7 @@ class JualController extends Controller
 
         $params = [
             'nota_jual' => $request->nota_jual,
-            'paytype' => $request->payment_type ?? 0,
-            'bank_id' => $request->bank_id ?? '',
-            'kdcard' => $request->payment_code ?? '',
-            'nocard' => $request->payment_card_number ?? '',
+            'paytype' => $request->payment_type ?? 3,
         ];
         // dd($params);
         if ($request->payment_type == 1 || $request->payment_type == 2) {

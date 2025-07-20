@@ -19,15 +19,14 @@ class JualHd extends BaseModel
     function insertData($params)
     {
         $result = DB::insert(
-            "INSERT TrJualHD (nota,tgljual,jamjual,ppn,disc,kdpos,waiter,nomeja,jmlorang,
+            "INSERT TrJualHD (nota,tgljual,jamjual,ppn,disc,kdpos,nomeja,jmlorang,
             cashier,fgbayar,fgbatal,keterangan,paytype,disctype,upddate,upduser,charge,fgfromqb,kdmember,fgstatus)
             VALUES (:nota, :transdate, :transdate1, (select top 1 isnull(nmset,0) from setup where kdset='ppn'), 0, 'DL',
-            :waiter, :nomeja, 0, :cashier, 'T', 'T', :note, 0, 0, getdate(), :upduser, 0, 'T', '00000', 0) ",
+            :nomeja, 0, :cashier, 'T', 'T', :note, 0, 0, getdate(), :upduser, 0, 'T', '00000', 0) ",
             [
                 'nota' => $params['nota_jual'],
                 'transdate' => $params['transdate'],
                 'transdate1' => $params['transdate'], // Assuming jamjual is the same as transdate
-                'waiter' => $params['waiter'],
                 'nomeja' => $params['nomor_meja'],
                 'cashier' => $params['cashier'],
                 'note' => $params['note'],
@@ -45,7 +44,6 @@ class JualHd extends BaseModel
             SET
             tgljual = :transdate,
             jamjual = :transdate1,
-            waiter = :waiter,
             nomeja = :nomeja,
             cashier = :cashier,
             keterangan = :note,
@@ -56,7 +54,6 @@ class JualHd extends BaseModel
                 'nota' => $params['nota_jual'],
                 'transdate' => $params['transdate'],
                 'transdate1' => $params['transdate'],
-                'waiter' => $params['waiter'],
                 'nomeja' => $params['nomor_meja'],
                 'cashier' => $params['cashier'],
                 'note' => $params['note'],
@@ -72,17 +69,11 @@ class JualHd extends BaseModel
         $result = DB::update(
             "UPDATE TrJualHD SET
             PayType = :paytype,
-            KdCard = :kdcard,
-            NoCard = :nocard,
-            BankId = :bankid,
             FgBayar = 'Y'
             WHERE nota = :nota",
             [
                 'nota' => $params['nota_jual'],
-                'paytype' => $params['paytype'],
-                'kdcard' => $params['kdcard'],
-                'nocard' => $params['nocard'],
-                'bankid' => $params['bank_id']
+                'paytype' => $params['paytype']
             ]
         );
 
@@ -94,7 +85,6 @@ class JualHd extends BaseModel
         $result = DB::selectOne(
             "SELECT a.nota as nota_jual,
             a.tgljual as transdate,
-            isnull(a.waiter,'') as waiter,
             isnull(a.nomeja,'') as nomor_meja,
             a.cashier as cashier,
             isnull(a.keterangan,'') as note,
@@ -102,13 +92,13 @@ class JualHd extends BaseModel
             isnull(a.stpj,0) as sub_total,
             isnull(a.ttltax,0) as total_ppn,
             isnull(a.ttlpj,0) as grand_total,
-            --a.fgstatus as fg_status,
-            --case when a.fgstatus=0 then 'DINE IN' when a.fgstatus=1 then 'TAKE AWAY'  else 'DELIVERY' end as fg_status_name,
-            --a.fgbayar as fg_bayar,
-            --a.paytype as jenis_bayar,
-            --isnull(a.kdcard,'') as card_id,
-            --isnull(a.nocard,'') as card_no,
-            --a.fgbatal as status_batal,
+            a.fgbayar as fg_bayar,
+            a.paytype as payment_type,
+            case when a.paytype='0' then 'QRIS' 
+                 when a.paytype='1' then 'Debit Card'
+                 when a.paytype='2' then 'Credit Card'
+                 when a.paytype='3' then 'Cash'
+                 else 'No Data' end as payment_type_name,
             a.upddate,
             a.upduser
             from trjualhd a
