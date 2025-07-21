@@ -24,10 +24,12 @@ class BahanBaku extends BaseModel
             FROM msbahanbaku a
             inner join msgroupbb b on a.kdgroupbb = b.kdgroupbb
             WHERE a.nmbb LIKE :search_keyword
-            OR a.nmgroupbb LIKE :search_keyword
+            OR b.nmgroupbb LIKE :search_keyword2
             order by a.nmbb ",
             [
-                'search_keyword' => '%' . $params['search_keyword'] . '%'
+                'search_keyword' => '%' . $params['search_keyword'] . '%',
+                'search_keyword2' => '%' . $params['search_keyword'] . '%'
+
             ]
         );
 
@@ -65,14 +67,13 @@ class BahanBaku extends BaseModel
     function insertData($params)
     {
         $result = DB::insert(
-            "INSERT INTO msbahanbaku (kdbb, nmbb, satkecil, kdgroupbb, upddate, upduser)
-            VALUES (:kdbb, :nmbb, :satkecil, :kdgroupbb, getdate(), :upduser)",
+            "INSERT INTO msbahanbaku (kdbb, nmbb, satkecil, kdgroupbb)
+            VALUES (:kdbb, :nmbb, :satkecil, :kdgroupbb)",
             [
                 'kdbb' => $params['bahan_baku_id'],
                 'nmbb' => $params['bahan_baku_name'],
                 'satkecil' => $params['satuan'],
-                'kdgroupbb' => $params['group_bahan_baku_id'],
-                'upduser' => $params['upduser']
+                'kdgroupbb' => $params['group_bahan_baku_id']
             ]
         );
 
@@ -85,16 +86,13 @@ class BahanBaku extends BaseModel
             "UPDATE msbahanbaku SET 
             nmbb = :nmbb,
             satkecil = :satkecil,
-            kdgroupbb = :kdgroupbb,
-            upddate = getdate(),
-            upduser = :upduser
+            kdgroupbb = :kdgroupbb
             WHERE kdbb = :kdbb",
             [
                 'kdbb' => $params['bahan_baku_id'],
                 'nmbb' => $params['bahan_baku_name'],
                 'satkecil' => $params['satuan'],
-                'kdgroupbb' => $params['group_bahan_baku_id'],
-                'upduser' => $params['upduser']
+                'kdgroupbb' => $params['group_bahan_baku_id']
             ]
         );
 

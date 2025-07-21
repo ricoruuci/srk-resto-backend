@@ -22,7 +22,7 @@ class JualHd extends BaseModel
             "INSERT TrJualHD (nota,tgljual,jamjual,ppn,disc,kdpos,nomeja,jmlorang,
             cashier,fgbayar,fgbatal,keterangan,paytype,disctype,upddate,upduser,charge,fgfromqb,kdmember,fgstatus)
             VALUES (:nota, :transdate, :transdate1, (select top 1 isnull(nmset,0) from setup where kdset='ppn'), 0, 'DL',
-            :nomeja, 0, :cashier, 'T', 'T', :note, 0, 0, getdate(), :upduser, 0, 'T', '00000', 0) ",
+            :nomeja, 0, :cashier, 'T', 'T', :note, 0, 0, getdate(), :upduser, 0, 'T', '00000', :fgstatus) ",
             [
                 'nota' => $params['nota_jual'],
                 'transdate' => $params['transdate'],
@@ -30,7 +30,8 @@ class JualHd extends BaseModel
                 'nomeja' => $params['nomor_meja'],
                 'cashier' => $params['cashier'],
                 'note' => $params['note'],
-                'upduser' => $params['upduser']
+                'upduser' => $params['upduser'],
+                'fgstatus' => $params['fgstatus']
             ]
         );
 
@@ -48,7 +49,8 @@ class JualHd extends BaseModel
             cashier = :cashier,
             keterangan = :note,
             upddate = getdate(),
-            upduser = :upduser
+            upduser = :upduser,
+            fgstatus = :fgstatus
             WHERE nota = :nota",
             [
                 'nota' => $params['nota_jual'],
@@ -57,7 +59,8 @@ class JualHd extends BaseModel
                 'nomeja' => $params['nomor_meja'],
                 'cashier' => $params['cashier'],
                 'note' => $params['note'],
-                'upduser' => $params['upduser']
+                'upduser' => $params['upduser'],
+                'fgstatus' => $params['fgstatus']
             ]
         );
 
@@ -94,6 +97,11 @@ class JualHd extends BaseModel
             isnull(a.ttlpj,0) as grand_total,
             a.fgbayar as fg_bayar,
             a.paytype as payment_type,
+            isnull(a.fgstatus,'0') as fgstatus,
+            case when isnull(a.fgstatus,'0')='0' then 'DINE IN'
+                 when isnull(a.fgstatus,'0')='1' then 'TAKE AWAY'
+                 when isnull(a.fgstatus,'0')='2' then 'DELIVERY'
+                 else 'No Data' end as status_name,
             case when a.paytype='0' then 'QRIS' 
                  when a.paytype='1' then 'Debit Card'
                  when a.paytype='2' then 'Credit Card'
@@ -115,7 +123,13 @@ class JualHd extends BaseModel
     function getDataMeja()
     {
         $result = DB::select(
-            "SELECT distinct isnull(b.nomeja,'') as nomor_meja,b.nota as nota_jual from trjualhd b
+            "SELECT distinct isnull(b.nomeja,'') as nomor_meja,b.nota as nota_jual,
+            isnull(b.fgstatus,'0') as fgstatus,
+            case when isnull(b.fgstatus,'0')='0' then 'DINE IN'
+                 when isnull(b.fgstatus,'0')='1' then 'TAKE AWAY'
+                 when isnull(b.fgstatus,'0')='2' then 'DELIVERY'
+                 else 'No Data' end as status_name
+            from trjualhd b
             where convert(varchar(8),b.tgljual,112) = convert(varchar(8),getdate(),112) and b.fgbayar='T'
             order by isnull(b.nomeja,'') "
         );
@@ -169,7 +183,6 @@ class JualHd extends BaseModel
 
     function cekData($id)
     {
-
         $result = DB::selectOne(
             'SELECT * from trjualhd WHERE nota = :id',
             [

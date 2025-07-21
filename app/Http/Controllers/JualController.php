@@ -48,6 +48,7 @@ class JualController extends Controller
             'nomor_meja' => $request->nomor_meja,
             'cashier' => Auth::user()->currentAccessToken()['namauser'],
             'note' => $request->note ?? '',
+            'fgstatus' => $request->fgstatus ?? 0,
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
         ];
 
@@ -155,6 +156,7 @@ class JualController extends Controller
             'nota_jual' => $request->nota_jual,
             'transdate' => $request->transdate,
             'nomor_meja' => $request->nomor_meja,
+            'fgstatus' => $request->fgstatus ?? 0,
             'cashier' => Auth::user()->currentAccessToken()['namauser'],
             'note' => $request->note ?? '',
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
@@ -249,17 +251,6 @@ class JualController extends Controller
             'paytype' => $request->payment_type ?? 3,
         ];
         // dd($params);
-        if ($request->payment_type == 1 || $request->payment_type == 2) {
-
-            $model_bank = new Bank();
-
-            $cek = $model_bank->cekData($request->bank_id ?? '');
-
-            if ($cek == false) {
-
-                return $this->responseError('bank tidak ada atau tidak ditemukan', 400);
-            }
-        }
 
         DB::beginTransaction();
 
