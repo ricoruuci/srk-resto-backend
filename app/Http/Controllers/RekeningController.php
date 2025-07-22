@@ -4,29 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Bank;
 use App\Models\Rekening;
+use App\Models\GroupRekening;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ArrayPaginator;
 use App\Traits\HttpResponse;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\Bank\GetRequest;
-use App\Http\Requests\Bank\GetRequestById;  
-use App\Http\Requests\Bank\InsertRequest;
-use App\Http\Requests\Bank\UpdateRequest;
-use App\Http\Requests\Bank\DeleteRequest;
+use App\Http\Requests\Rekening\GetRequest;
+use App\Http\Requests\Rekening\GetRequestById;  
+use App\Http\Requests\Rekening\InsertRequest;
+use App\Http\Requests\Rekening\UpdateRequest;
+use App\Http\Requests\Rekening\DeleteRequest;
 
-class BankController extends Controller
+class RekeningController extends Controller
 {
     use ArrayPaginator, HttpResponse;
 
     public function getListData(GetRequest $request)
     {
-        $model = new Bank();
+        $model = new Rekening();
 
         $result = $model->getAllData([
-            'fgactive' => $request->fgactive ?? 'all',
             'search_keyword' => $request->input('search_keyword') ?? ''
         ]);
         
@@ -38,13 +37,13 @@ class BankController extends Controller
 
     public function getDataById(GetRequestById $request)
     {
-        $model = new Bank();
+        $model = new Rekening();
 
-        $id = $request->bank_id;
+        $id = $request->rekening_id;
 
         $cek = $model->cekData($id);
         if (is_null($cek)) {
-            return $this->responseError('Data bank tidak ditemukan', 404);
+            return $this->responseError('Data Rekening tidak ditemukan', 404);
         }
 
         $result = $model->getDataById($id);
@@ -54,42 +53,41 @@ class BankController extends Controller
 
     public function updateData(UpdateRequest $request)
     {
-        $model = new Bank();
-        $modelGroup = new Rekening();
+        $model = new Rekening();
+        $modelGroup = new GroupRekening();
 
-        $id = $request->bank_id;
+        $id = $request->rekening_id;
 
         $cek = $model->cekData($id);
         if (is_null($cek)) {
-            return $this->responseError('Data bank tidak ditemukan', 404);
+            return $this->responseError('Data Rekening tidak ditemukan', 404);
         }
 
-        $cekGroup = $modelGroup->cekData($request->rekening_id);
-        if (is_null($cekGroup)) {
+        $cek = $modelGroup->cekData($request->group_rek_id);
+        if (is_null($cek)) {
             return $this->responseError('Data Group Rekening tidak ditemukan', 404);
-        }   
+        }
 
         DB::beginTransaction();
 
         try 
         {
             $data = [
-                'bankid' => $id,
-                'bankname' => $request->input('bank_name'),
-                'rekeningid' => $request->input('rekening_id'),
+                'rekening_id' => $id,
+                'rekening_name' => $request->input('rekening_name'),
+                'group_rek_id' => $request->input('group_rek_id'),
                 'note' => $request->input('note', ''),
-                'fgactive' => $request->input('fgactive'),
                 'upduser' => Auth::user()->currentAccessToken()['namauser']
             ];
 
             $result = $model->updateData($data);
 
             if ($result == false) {
-                return $this->responseError('Gagal menyimpan data bank', 500);
+                return $this->responseError('Gagal menyimpan data rekening', 500);
             }
 
             DB::commit();
-            return $this->responseSuccess('Data bank berhasil disimpan', 200, ['bank' => $request->bank_id]);
+            return $this->responseSuccess('Data rekening berhasil disimpan', 200, ['rekening' => $request->rekening_id]);
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->responseError('Terjadi kesalahan: ' . $e->getMessage(), 500);
@@ -98,40 +96,39 @@ class BankController extends Controller
 
     public function insertData(InsertRequest $request)
     {
-        $model = new Bank();
-        $modelGroup = new Rekening();
+        $model = new Rekening();
+        $modelGroup = new GroupRekening();
 
-        $cek = $model->cekData($request->bank_id);
+        $cek = $model->cekData($request->rekening_id);
         if ($cek) {
-            return $this->responseError('Data bank sudah ada', 404);
+            return $this->responseError('Data rekening sudah ada', 404);
         }
 
-        $cekGroup = $modelGroup->cekData($request->rekening_id);
-        if (is_null($cekGroup)) {
+        $cek = $modelGroup->cekData($request->group_rek_id);
+        if ($cek==false) {
             return $this->responseError('Data Group Rekening tidak ditemukan', 404);
-        }  
+        }
 
         DB::beginTransaction();
 
         try 
         {
             $data = [
-                'bankid' => $request->bank_id,
-                'bankname' => $request->input('bank_name'),
-                'rekeningid' => $request->input('rekening_id'),
+                'rekening_id' => $request->rekening_id,
+                'rekening_name' => $request->input('rekening_name'),
+                'group_rek_id' => $request->input('group_rek_id'),
                 'note' => $request->input('note', ''),
-                'fgactive' => $request->input('fgactive'),
                 'upduser' => Auth::user()->currentAccessToken()['namauser']
             ];
 
             $result = $model->insertData($data);
 
             if ($result == false) {
-                return $this->responseError('Gagal menyimpan data bank', 500);
+                return $this->responseError('Gagal menyimpan data rekening', 500);
             }
 
             DB::commit();
-            return $this->responseSuccess('Data bank berhasil disimpan', 200, ['bank' => $request->bank_id]);
+            return $this->responseSuccess('Data rekening berhasil disimpan', 200, ['rekening' => $request->rekening_id]);
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->responseError('Terjadi kesalahan: ' . $e->getMessage(), 500);
@@ -140,13 +137,13 @@ class BankController extends Controller
 
     public function deleteData(DeleteRequest $request)
     {
-        $model = new Bank();
+        $model = new Rekening();
 
-        $id = $request->bank_id;
+        $id = $request->rekening_id;
 
         $cek = $model->cekData($id);
         if (is_null($cek)) {
-            return $this->responseError('Data bank tidak ditemukan', 404);
+            return $this->responseError('Data rekening tidak ditemukan', 404);
         }
 
         DB::beginTransaction();
@@ -156,11 +153,11 @@ class BankController extends Controller
             $result = $model->deleteData($id);
 
             if ($result == false) {
-                return $this->responseError('Gagal menghapus data bank', 500);
+                return $this->responseError('Gagal menghapus data rekening', 500);
             }
 
             DB::commit();
-            return $this->responseSuccess('Data bank berhasil dihapus', 200, ['bank' => $id]);
+            return $this->responseSuccess('Data rekening berhasil dihapus', 200, ['rekening' => $id]);
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->responseError('Terjadi kesalahan: ' . $e->getMessage(), 500);

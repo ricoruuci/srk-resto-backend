@@ -14,6 +14,9 @@ use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\BahanBakuController;
 use App\Http\Controllers\GroupBahanBakuController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TxnKKBBController;
+use App\Http\Controllers\GroupRekeningController;
+use App\Http\Controllers\RekeningController;
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
@@ -21,7 +24,12 @@ Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanct
 // Route::get('waiter', [WaiterController::class, 'getListData'])->middleware('auth:sanctum');
 Route::get('menu-penjualan', [MenuController::class, 'getListMenuPenjualan'])->middleware('auth:sanctum');
 Route::get('meja', [MejaController::class, 'getListData'])->middleware('auth:sanctum');
+
 Route::get('bank', [BankController::class, 'getListData'])->middleware('auth:sanctum');
+Route::get('bank-by-id', [BankController::class, 'getDataById'])->middleware('auth:sanctum');
+Route::post('bank', [BankController::class, 'insertData'])->middleware('auth:sanctum');
+Route::patch('bank', [BankController::class, 'updateData'])->middleware('auth:sanctum');
+Route::delete('bank', [BankController::class, 'deleteData'])->middleware('auth:sanctum');
 
 Route::get('menu', [MenuController::class, 'getListData'])->middleware('auth:sanctum');
 Route::get('menu-by-id', [MenuController::class, 'getDataById'])->middleware('auth:sanctum');
@@ -61,9 +69,20 @@ Route::delete('supplier', [SupplierController::class, 'deleteData'])->middleware
 Route::post('penjualan', [JualController::class, 'insertData'])->middleware('auth:sanctum');
 Route::patch('penjualan', [JualController::class, 'updateData'])->middleware('auth:sanctum');
 Route::get('penjualan', [JualController::class, 'getListData'])->middleware('auth:sanctum');
-
 Route::patch('payment', [JualController::class, 'updatePayment'])->middleware('auth:sanctum');
-
 Route::get('data-meja', [JualController::class, 'getDataMeja'])->middleware('auth:sanctum');
 
+Route::post('txnkkbb', [TxnKKBBController::class, 'insertData'])->middleware('auth:sanctum');
+Route::get('txnkkbb', [TxnKKBBController::class, 'getListData'])->middleware('auth:sanctum');
+Route::get('txnkkbb-by-id', [TxnKKBBController::class, 'getDataById'])->middleware('auth:sanctum');
+Route::patch('txnkkbb', [TxnKKBBController::class, 'updateAllData'])->middleware('auth:sanctum');
+Route::delete('txnkkbb', [TxnKKBBController::class, 'deleteData'])->middleware('auth:sanctum');
+
+Route::get('group-rekening', [GroupRekeningController::class, 'getListData'])->middleware('auth:sanctum');
+
+Route::get('rekening', [RekeningController::class, 'getListData'])->middleware('auth:sanctum');
+Route::get('rekening-by-id', [RekeningController::class, 'getDataById'])->middleware('auth:sanctum');
+Route::post('rekening', [RekeningController::class, 'insertData'])->middleware('auth:sanctum');
+Route::patch('rekening', [RekeningController::class, 'updateData'])->middleware('auth:sanctum');
+Route::delete('rekening', [RekeningController::class, 'deleteData'])->middleware('auth:sanctum');
 
