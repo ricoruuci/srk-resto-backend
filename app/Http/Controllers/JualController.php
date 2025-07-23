@@ -43,6 +43,13 @@ class JualController extends Controller
             return $this->responseError('nomor meja tidak ada atau tidak ditemukan', 400);
         }
 
+        $cek = $model_header->cekMejaAktif($request->nomor_meja ?? '');
+
+        if ($cek) {
+
+            return $this->responseError('nomor order sudah aktif, silahkan gunakan nomor order lain', 400);
+        }
+
         $params = [
             'transdate' => $request->transdate,
             'nomor_meja' => $request->nomor_meja,

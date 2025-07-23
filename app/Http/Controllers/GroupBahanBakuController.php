@@ -107,6 +107,11 @@ class GroupBahanBakuController extends Controller
             return $this->responseError('Group bahan baku tidak ditemukan', 404);
         }
 
+        $cek = $model->cekTerpakai($request->group_bahan_baku_id);
+        if ($cek) {
+            return $this->responseError('Group bahan baku sudah terpakai, tidak bisa dihapus', 400);
+        }
+
         DB::beginTransaction();
 
         try {

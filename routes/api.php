@@ -17,6 +17,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TxnKKBBController;
 use App\Http\Controllers\GroupRekeningController;
 use App\Http\Controllers\RekeningController;
+use App\Http\Controllers\BeliController;
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
@@ -66,17 +67,19 @@ Route::post('supplier', [SupplierController::class, 'insertData'])->middleware('
 Route::patch('supplier', [SupplierController::class, 'updateData'])->middleware('auth:sanctum');
 Route::delete('supplier', [SupplierController::class, 'deleteData'])->middleware('auth:sanctum');
 
+Route::get('penjualan', [JualController::class, 'getListData'])->middleware('auth:sanctum');
 Route::post('penjualan', [JualController::class, 'insertData'])->middleware('auth:sanctum');
 Route::patch('penjualan', [JualController::class, 'updateData'])->middleware('auth:sanctum');
-Route::get('penjualan', [JualController::class, 'getListData'])->middleware('auth:sanctum');
-Route::patch('payment', [JualController::class, 'updatePayment'])->middleware('auth:sanctum');
-Route::get('data-meja', [JualController::class, 'getDataMeja'])->middleware('auth:sanctum');
 
-Route::post('txnkkbb', [TxnKKBBController::class, 'insertData'])->middleware('auth:sanctum');
+Route::get('data-meja', [JualController::class, 'getDataMeja'])->middleware('auth:sanctum');
+Route::patch('payment', [JualController::class, 'updatePayment'])->middleware('auth:sanctum');
+
 Route::get('txnkkbb', [TxnKKBBController::class, 'getListData'])->middleware('auth:sanctum');
 Route::get('txnkkbb-by-id', [TxnKKBBController::class, 'getDataById'])->middleware('auth:sanctum');
+Route::post('txnkkbb', [TxnKKBBController::class, 'insertData'])->middleware('auth:sanctum');
 Route::patch('txnkkbb', [TxnKKBBController::class, 'updateAllData'])->middleware('auth:sanctum');
 Route::delete('txnkkbb', [TxnKKBBController::class, 'deleteData'])->middleware('auth:sanctum');
+Route::get('cari-nota-belum-lunas', [TxnKKBBController::class, 'cariNota'])->middleware('auth:sanctum');
 
 Route::get('group-rekening', [GroupRekeningController::class, 'getListData'])->middleware('auth:sanctum');
 
@@ -85,4 +88,10 @@ Route::get('rekening-by-id', [RekeningController::class, 'getDataById'])->middle
 Route::post('rekening', [RekeningController::class, 'insertData'])->middleware('auth:sanctum');
 Route::patch('rekening', [RekeningController::class, 'updateData'])->middleware('auth:sanctum');
 Route::delete('rekening', [RekeningController::class, 'deleteData'])->middleware('auth:sanctum');
+
+Route::get('beli', [BeliController::class, 'getListData'])->middleware('auth:sanctum');
+Route::get('beli-by-id', [BeliController::class, 'getDataById'])->middleware('auth:sanctum');
+Route::post('beli', [BeliController::class, 'insertData'])->middleware('auth:sanctum');
+Route::patch('beli', [BeliController::class, 'updateData'])->middleware('auth:sanctum');
+Route::delete('beli', [BeliController::class, 'deleteData'])->middleware('auth:sanctum');
 

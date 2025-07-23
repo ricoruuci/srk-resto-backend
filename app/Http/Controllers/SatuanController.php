@@ -71,6 +71,11 @@ class SatuanController extends Controller
             return $this->responseError('Satuan tidak ditemukan', 404);
         }
 
+        $cek = $model->cekTerpakai($request->satuan);
+        if ($cek != false) {
+            return $this->responseError('Satuan sedang digunakan', 400);
+        }
+
         DB::beginTransaction();
 
         try {

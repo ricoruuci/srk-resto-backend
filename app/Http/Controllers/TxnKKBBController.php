@@ -18,6 +18,7 @@ use App\Http\Requests\TxnKKBB\UpdateRequest;
 use App\Http\Requests\TxnKKBB\InsertRequest;
 use App\Http\Requests\TxnKKBB\DeleteRequest;
 use App\Http\Requests\TxnKKBB\GetRequest;
+use App\Http\Requests\TxnKKBB\GetNotaRequest;
 use App\Http\Requests\TxnKKBB\GetRequestById;
 
 class TxnKKBBController extends Controller
@@ -341,54 +342,30 @@ class TxnKKBBController extends Controller
         }
     }
 
-    // public function cariNota(Request $request)
-    // {
-    //     $cfdetail = new CFTrKKBBDt();
-    //     $mssupplier = new APMsSupplier();
-    //     $mscustomer = new ARMsCustomer();
+    public function cariNota(GetNotaRequest $request)
+    {
+        $cfdetail = new CFTrKKBBDt();
+        $mssupplier = new Supplier();
 
-    //     $validator = Validator::make($request->all(), $cfdetail::$rulesCariNota);
+        $cek = $mssupplier->cekData($request->input('actor'));
 
-    //     if ($validator->fails())
-    //     {
-    //         return $this->responseError($validator->messages(), 400);
-    //     }
+        if($cek==false){
 
-    //     if ($request->input('flagkkbb')=='ARK' or $request->input('flagkkbb')=='ARB' or $request->input('flagkkbb')=='ARC'){
+            return $this->responseError('supplier tidak ada atau tidak terdaftar dalam master', 400);
+        }
 
-    //         $cek = $mscustomer->cekCustomer($request->input('actor'));
+        $result = $cfdetail->cariNota(
+            [
+                'transdate' => $request->input('transdate'),
+                'actor' => $request->input('actor')
+            ]
+        );
 
-    //         if($cek==false){
+        $resultPaginated = $this->arrayPaginator($request, $result);
 
-    //             return $this->responseError('kode pelanggan tidak terdaftar dalam master', 400);
-    //         }
+        return $this->responsePagination($resultPaginated);
 
-    //     }
-
-    //     if ($request->input('flagkkbb')=='APK' or $request->input('flagkkbb')=='APB' or $request->input('flagkkbb')=='APC'){
-
-    //         $cek = $mssupplier->cekSupplier($request->input('actor'));
-
-    //         if($cek==false){
-
-    //             return $this->responseError('kode supplier tidak terdaftar dalam master', 400);
-    //         }
-        
-    //     }
-
-    //     $result = $cfdetail->cariInvoiceBlmLunas(
-    //         [
-    //             'transdate' => $request->input('transdate'),
-    //             'actor' => $request->input('actor'),
-    //             'flagkkbb' => $request->input('flagkkbb')
-    //         ]
-    //     );
-
-    //     $resultPaginated = $this->arrayPaginator($request, $result);
-
-    //     return $this->responsePagination($resultPaginated);
-
-    // }
+    }
 
 }
 

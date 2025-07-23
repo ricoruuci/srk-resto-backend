@@ -57,6 +57,18 @@ class GroupBahanBaku extends BaseModel
         return $result;
     }
 
+    function cekTerpakai($id)
+    {
+        $result = DB::selectOne(
+            'SELECT * from msbahanbaku WHERE kdgroupbb = :id',
+            [
+                'id' => $id
+            ]
+        );
+
+        return $result;
+    }
+
     function insertData($params)
     {
         $result = DB::insert(

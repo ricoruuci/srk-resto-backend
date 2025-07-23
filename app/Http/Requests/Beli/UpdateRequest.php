@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Menu;
+namespace App\Http\Requests\Beli;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -14,15 +14,15 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'menu_id' => 'required|string',
-            'menu_name' => 'required|string',
-            'price' => 'required|numeric',
-            'fg_item' => 'required|in:A,B',
-            'group_menu_id' => 'required|string',
-            'item_picture' => 'nullable|string',
+            'nota_beli' => 'required|string',
+            'transdate' => 'required',
+            'supplier_id' => 'required|string',
+            'ppn' => 'required|numeric|min:0',
+            'note' => 'nullable|string',
             'detail' => 'nullable|array',
             'detail.*.bahan_baku_id' => 'required|string',
-            'detail.*.qty' => 'required|numeric',
+            'detail.*.qty' => 'required|numeric|min:0',
+            'detail.*.price' => 'required|numeric|min:0',
             'detail.*.satuan' => 'required|string',
         ];
     }

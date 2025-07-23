@@ -65,50 +65,29 @@ class CFTrKKBBDt extends Model //nama class
         return $result;
     }
 
-    // function cariInvoiceBlmLunas($param)
-    // {
+    function cariNota($param)
+    {
         
-    //     if ($param['fgtrans']=='APK' or $param['fgtrans']=='APB' or $param['fgtrans']=='APC'){
+        $result = DB::select(
+            "SELECT *,k.total-k.bayar as sisa from (
+            select a.nota as nota,a.tglbeli as transdate,a.ttlpb as total,
+            isnull((select sum(case when x.jenis='d' then x.amount else x.amount*-1 end) from cftrkkbbdt x 
+            inner join cftrkkbbhd y on x.voucherid=y.voucherid where x.note=a.nota and convert(varchar(10),y.transdate,112) <= :tgl1),0) as bayar
+            from trbelibbhd a 
+            where convert(varchar(10),a.tglbeli,112) <= :tgl2 and a.kdsupplier=:actor
+            ) as k
+            where k.total-k.bayar<>0
+            order by k.nota ",
+            [
+                'actor' => $param['actor'],
+                'tgl1' => $param['transdate'],
+                'tgl2' => $param['transdate']
+            ]
+        );
+        
 
-    //         $result = DB::select(
-    //             "SELECT k.suppid as actor,k.purchaseid as notaid,k.transdate,isnull(k.ttlpb,0) as total,isnull(k.bayar,0) as bayar,isnull(k.retur,0) as retur,
-    //             isnull(k.ttlpb-k.bayar-k.retur,0) as sisa from (
-    //             select b.purchaseid,b.transdate,b.ttlpb,b.currid,b.suppid,
-    //             (select isnull(sum(amount),0) from cftrkkbbdt a inner join cftrkkbbhd c on a.voucherid=c.voucherid 
-    //             where a.note=b.purchaseid and c.actor=b.suppid and a.rekeningid=(select drpb from samsset)) as bayar, (select isnull(sum(price*qty),0) 
-    //             from aptrreturndt f inner join aptrreturnhd g  on f.returnid=g.returnid 
-    //             where g.flagretur='b' and f.purchaseid=b.purchaseid  and g.suppid=b.suppid) as retur 
-    //             from aptrpurchasehd b where isnull(b.fgoto,'t')='y' ) as k 
-    //             where k.currid='idr' and k.suppid=:actor and 
-    //             convert(varchar(10),k.transdate,112) <= :transdate 
-    //             and isnull(k.ttlpb-k.bayar-k.retur,0) > 0 order by k.transdate",
-    //             [
-    //                 'actor' => $param['actor'],
-    //                 'transdate' => $param['transdate']
-    //             ]
-    //         );
-    //     }
-    //     else 
-    //     {            
-    //         $result = DB::select(
-    //             "SELECT k.custid as actor,k.saleid as notaid,k.transdate,isnull(k.ttlpj,0) as total,isnull(k.bayar,0) as bayar,
-    //             isnull(k.retur,0) as retur,isnull(k.ttlpj-k.bayar-k.retur,0) as sisa from (
-    //             select saleid,transdate,b.currid,b.custid,isnull(ttlpj,0) as ttlpj,
-    //             (select isnull(sum(a.amount),0) from cftrkkbbdt a where a.note=b.saleid and a.rekeningid=(select drpj from samsset)) as bayar,
-    //             (select isnull(sum(x.qty*y.price),0) from artrreturpenjualandt x 
-    //             inner join artrpenjualandt y on x.saleid=y.saleid and x.itemid=y.itemid where y.saleid=b.saleid) as retur from artrpenjualanhd b ) as k 
-    //             where k.currid='idr' and k.custid=:actor 
-    //             and isnull(k.ttlpj-k.bayar-k.retur,0) <> 0
-    //             and convert(varchar(10),k.transdate,112) <= :transdate order by k.transdate",
-    //             [
-    //                 'actor' => $param['actor'],
-    //                 'transdate' => $param['transdate']
-    //             ]
-    //         );
-    //     }
-
-    //     return $result;
-    // }
+        return $result;
+    }
 }
 
 ?>

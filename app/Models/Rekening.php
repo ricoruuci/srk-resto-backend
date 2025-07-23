@@ -116,6 +116,18 @@ class Rekening extends BaseModel
         return $result;
     }
 
+    function cekTerpakai($id)
+    {
+        $result = DB::selectOne(
+            'SELECT * from cftrkkbbdt WHERE rekeningid = :id',
+            [
+                'id' => $id
+            ]
+        );
+
+        return $result;
+    }
+
 
 }
 

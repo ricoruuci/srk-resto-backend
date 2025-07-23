@@ -146,6 +146,11 @@ class RekeningController extends Controller
             return $this->responseError('Data rekening tidak ditemukan', 404);
         }
 
+        $cek = $model->cekTerpakai($id);
+        if ($cek) {
+            return $this->responseError('Data rekening sudah pernah dipakai di transaksi, tidak bisa hapus', 400);
+        }
+
         DB::beginTransaction();
 
         try 

@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\GroupMenu;
 use App\Models\Menu;
+use App\Models\MenuDt;
+use App\Models\BahanBaku;
+use App\Models\Satuan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ArrayPaginator;
@@ -38,12 +41,6 @@ class MenuController extends Controller
             $group_result = $menu_model->getDataByGroupMenuId($item->group_menu_id);
 
             if (isset($group_result)) {
-                // foreach ($group_result as $menuItem) {
-                //     if (isset($menuItem->item_picture)) {
-                //         $menuItem->item_picture = base64_encode($menuItem->item_picture);
-                //     }
-                // }
-
                 $item->items = $group_result;
             } else {
                 $item->items = [];
@@ -61,6 +58,8 @@ class MenuController extends Controller
     {
         $menu_model = new Menu();
 
+        $menu_bahan = new MenuDt();
+
         $id = $request->menu_id;
 
         $cek = $menu_model->cekData($request->menu_id);
@@ -68,7 +67,14 @@ class MenuController extends Controller
             return $this->responseError('Menu tidak ditemukan', 404);
         }
 
-        $result = $menu_model->getDataById($id);
+        $header = $menu_model->getDataById($id);
+
+        $detail = $menu_bahan->getDataById($id);
+
+        $result = [
+            'header' => $header,
+            'detail' => $detail
+        ];
 
         return $this->responseData($result);
     }
@@ -77,6 +83,11 @@ class MenuController extends Controller
     {
         $model = new Menu();
 
+        $model_detail = new MenuDt();
+
+        $model_bb = new BahanBaku();
+
+        $model_satuan = new Satuan();
         
         DB::beginTransaction();
         
@@ -99,6 +110,43 @@ class MenuController extends Controller
                 return $this->responseError('Gagal menyimpan data menu', 500);
             }
 
+            $arrDetail = $request->input('detail');
+
+            if (!empty($arrDetail)) {
+                for ($i = 0; $i < sizeof($arrDetail); $i++) {
+
+                    $cek = $model_bb->cekData($arrDetail[$i]['bahan_baku_id'] ?? '');
+
+                    if ($cek == false) {
+                        DB::rollBack();
+
+                        return $this->responseError('Bahan Baku tidak ada atau tidak ditemukan', 400);
+                    }
+
+                    $cek = $model_satuan->cekData($arrDetail[$i]['satuan'] ?? '');
+
+                    if ($cek == false) {
+                        DB::rollBack();
+
+                        return $this->responseError('Satuan tidak ada atau tidak ditemukan', 400);
+                    }
+
+                    $insertdetail = $model_detail->insertData([
+                        'menu_id' => $autonumber,
+                        'bahan_baku_id' => $arrDetail[$i]['bahan_baku_id'],
+                        'qty' => $arrDetail[$i]['qty'],
+                        'satuan' => $arrDetail[$i]['satuan'],
+                        'upduser' => Auth::user()->currentAccessToken()['namauser']
+                    ]);
+
+                    if ($insertdetail == false) {
+                        DB::rollBack();
+
+                        return $this->responseError('Insert detail gagal', 400);
+                    }
+                }
+            }
+
             DB::commit();
             return $this->responseSuccess('Data menu berhasil disimpan', 200, ['menu_id' => $autonumber]);
         } catch (\Exception $e) {
@@ -110,6 +158,9 @@ class MenuController extends Controller
     public function updateData(UpdateRequest $request)
     {
         $model = new Menu();
+        $model_detail = new MenuDt();
+        $model_bb = new BahanBaku();
+        $model_satuan = new Satuan();
 
         $params = [
             'menu_id' => $request->menu_id,
@@ -135,6 +186,44 @@ class MenuController extends Controller
                 return $this->responseError('Gagal memperbarui data menu', 500);
             }
 
+            $arrDetail = $request->input('detail');
+
+            $deleteResult = $model_detail->deleteData($request->menu_id);
+
+            if (!empty($arrDetail)) {
+                for ($i = 0; $i < sizeof($arrDetail); $i++) {
+
+                    $cek = $model_bb->cekData($arrDetail[$i]['bahan_baku_id'] ?? '');
+
+                    if ($cek == false) {
+                        DB::rollBack();
+
+                        return $this->responseError('Bahan Baku tidak ada atau tidak ditemukan', 400);
+                    }
+
+                    $cek = $model_satuan->cekData($arrDetail[$i]['satuan'] ?? '');
+                    if ($cek == false) {
+                        DB::rollBack();
+
+                        return $this->responseError('Satuan tidak ada atau tidak ditemukan', 400);
+                    }
+
+                    $insertdetail = $model_detail->insertData([
+                        'menu_id' => $request->menu_id,
+                        'bahan_baku_id' => $arrDetail[$i]['bahan_baku_id'],
+                        'qty' => $arrDetail[$i]['qty'],
+                        'satuan' => $arrDetail[$i]['satuan'],
+                        'upduser' => Auth::user()->currentAccessToken()['namauser']
+                    ]);
+
+                    if ($insertdetail == false) {
+                        DB::rollBack();
+
+                        return $this->responseError('Insert detail gagal', 400);
+                    }
+                }
+            }
+
             DB::commit();
             return $this->responseSuccess('Data menu berhasil diperbarui', 200, ['menu_id' => $request->menu_id]);
         } catch (\Exception $e) {
@@ -152,6 +241,11 @@ class MenuController extends Controller
         $cek = $model->cekData($request->menu_id);
         if ($cek == false) {
             return $this->responseError('Menu tidak ditemukan', 404);
+        }
+
+        $cek = $model->cekTerpakai($request->menu_id);
+        if ($cek) {
+            return $this->responseError('Menu sudah pernah dipakai di transaksi penjualan. tidak bisa hapus', 400);
         }
 
         DB::beginTransaction();

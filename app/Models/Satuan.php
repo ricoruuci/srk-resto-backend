@@ -53,6 +53,18 @@ class Satuan extends BaseModel
         return $result;
     }
 
+    function cekTerpakai($id)
+    {
+        $result = DB::selectOne(
+            'SELECT * from msbahanbaku WHERE satkecil = :id',
+            [
+                'id' => $id
+            ]
+        );
+
+        return $result;
+    }
+
     function insertData($params)
     {
         $result = DB::insert(

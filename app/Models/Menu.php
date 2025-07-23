@@ -82,6 +82,19 @@ class Menu extends BaseModel
         return $result;
     }
 
+    function cekTerpakai($id)
+    {
+
+        $result = DB::selectOne(
+            'SELECT * from trjualdt WHERE kdmenu = :id',
+            [
+                'id' => $id
+            ]
+        );
+
+        return $result;
+    }
+
     function insertData($params)
     {
         $result = DB::insert(

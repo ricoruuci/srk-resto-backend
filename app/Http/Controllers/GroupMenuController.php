@@ -107,6 +107,11 @@ class GroupMenuController extends Controller
             return $this->responseError('Group menu tidak ditemukan', 404);
         }
 
+        $cek = $model->cekTerpakai($request->group_menu_id);
+        if ($cek) {
+            return $this->responseError('Group menu sudah terpakai, tidak bisa dihapus', 400);
+        }
+
         DB::beginTransaction();
 
         try {

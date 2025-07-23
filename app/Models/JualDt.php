@@ -89,7 +89,7 @@ class JualDt extends BaseModel
     {
         $result = DB::insert(
             "INSERT into allbb (kode, bukti, tanggal, nota, kdbb, kdmenu, jumlah, harga, kdsat, kdpos, jmlasli, jumsat, satasli)
-            SELECT 4,a.nodetil,b.tgljual,a.nota,c.kdbb,a.kdmenu,a.jumlah*c.jumlah*(case when c.kdsat=d.satbesar then d.jumsat else 1 end),0,
+            SELECT 51,a.nodetil,b.tgljual,a.nota,c.kdbb,a.kdmenu,a.jumlah*c.jumlah*(case when c.kdsat=d.satbesar then d.jumsat else 1 end),0,
             d.satkecil,b.kdpos,a.jumlah*c.jumlah,d.jumsat,c.kdsat
             from trjualdt a
             inner join trjualhd b on a.nota=b.nota
