@@ -41,11 +41,11 @@ class CFTrKKBBDt extends Model //nama class
     {
         $result = DB::select(
             "SELECT case when b.FlagKKBB in ('ark','arc','arb','apk','apb','apc') then 'T' else 'Y' end as userinput,
-            a.voucherid,a.rekeningid,c.rekeningname,a.note,a.amount,a.upddate,a.upduser,a.jenis from cftrkkbbdt a
+            a.voucherid as voucher_id,a.rekeningid,c.rekeningname,a.note,a.amount,a.upddate,a.upduser,a.jenis from cftrkkbbdt a
             inner join CFTrKKBBHd b on a.voucherid=b.voucherid
             left join cfmsrekening c on a.RekeningID=c.rekeningid WHERE a.voucherid = :voucherid ",
             [
-                'voucherid' => $param['voucherid']
+                'voucherid' => $param['voucher_id']
             ]
         );
 

@@ -93,7 +93,7 @@ class CFTrKKBBHd extends BaseModel //nama class
             from cftrkkbbhd a 
 			WHERE a.voucherid = :voucherid ",
             [
-                'voucherid' => $param['voucherid']
+                'voucherid' => $param['voucher_id']
             ]
         );
 

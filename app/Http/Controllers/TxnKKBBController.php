@@ -173,13 +173,13 @@ class TxnKKBBController extends Controller
 
         $resultheader = $cfheader->getdata(
             [
-                'voucherid' => $request->input('voucherid')
+                'voucher_id' => $request->input('voucher_id')
             ]
         );
 
         $resultdetail = $cfdetail->getdata(
             [
-                'voucherid' => $request->input('voucherid')
+                'voucher_id' => $request->input('voucher_id')
             ]
         );
 

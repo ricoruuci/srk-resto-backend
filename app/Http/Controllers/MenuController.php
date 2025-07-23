@@ -63,7 +63,7 @@ class MenuController extends Controller
 
         $id = $request->menu_id;
 
-        $cek = $model->cekData($request->menu_id);
+        $cek = $menu_model->cekData($request->menu_id);
         if ($cek == false) {
             return $this->responseError('Menu tidak ditemukan', 404);
         }
