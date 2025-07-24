@@ -22,24 +22,39 @@ class User extends Authenticatable
     {
         $cryptedPassword = '';
         $rotate = 41;
+        $pan = strlen($password);
+        $data = array();
 
-        for ($i = 0; $i < strlen($password); $i = $i + 1)
+        //memasukkan password menjadi array data[]
+        for ( $i = 1; $i <= $pan; $i = $i + 1) 
         {
-            $baru[$i] = substr($password,$i,1);
+            $data[$i] = substr($password,$i-1,1);
+        }
+        
+        //melakukan pengacakan array data[]
+        for ( $i = 1; $i <= $pan; $i = $i + 1 ) 
+        {
+            $tamp = $data[$i];
+            $ctr = ($i*$rotate) % $pan;
+            if ($ctr == 0) {
+                $ctr = $pan;
+            }
+            $data[$i] = $data[$ctr];
+            $data[$ctr] = $tamp; 
         }
 
-        for ( $i = 0; $i < strlen($password); $i = $i + 1 )
+        //melakukan enkripsi dari variabel data[]
+        for ( $i = 1; $i <= $pan; $i = $i + 1 ) 
         {
-            $asc = ord($baru[$i]);
-            $asc = $asc + (($i + 1) * $rotate);
+            $asc = ord($data[$i]);
+            $asc = $asc + ($i * $rotate);
             $kumpul = $asc / 16 + 65;
             $hsl1 = chr($kumpul);
             $kumpul = $asc % 16 + 65;
             $hsl2 = chr($kumpul);
             $cryptedPassword = $cryptedPassword . $hsl1 . $hsl2;
-        }
+        } 
 
-        //dd(var_dump($cryptedPassword));
         return $cryptedPassword;
     }
 

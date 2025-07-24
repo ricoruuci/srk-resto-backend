@@ -18,6 +18,10 @@ use App\Http\Controllers\TxnKKBBController;
 use App\Http\Controllers\GroupRekeningController;
 use App\Http\Controllers\RekeningController;
 use App\Http\Controllers\BeliController;
+use App\Http\Controllers\RptPenjualanController;
+use App\Http\Controllers\RptPembelianController;
+use App\Http\Controllers\SetRekeningController;
+use App\Http\Controllers\RptFinanceController;
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
@@ -94,4 +98,19 @@ Route::get('beli-by-id', [BeliController::class, 'getDataById'])->middleware('au
 Route::post('beli', [BeliController::class, 'insertData'])->middleware('auth:sanctum');
 Route::patch('beli', [BeliController::class, 'updateData'])->middleware('auth:sanctum');
 Route::delete('beli', [BeliController::class, 'deleteData'])->middleware('auth:sanctum');
+
+Route::get('set-rekening', [SetRekeningController::class, 'getListData'])->middleware('auth:sanctum');
+Route::patch('set-rekening', [SetRekeningController::class, 'updateData'])->middleware('auth:sanctum');
+
+/*==============================================================================================================
+ * Laporan 
+ *==============================================================================================================*/
+
+Route::get('rpt-penjualan', [RptPenjualanController::class, 'getLapPenjualan'])->middleware('auth:sanctum');
+Route::get('rpt-pembelian', [RptPembelianController::class, 'getLapPembelian'])->middleware('auth:sanctum');
+Route::get('rpt-hutang', [RptPembelianController::class, 'getLapHutang'])->middleware('auth:sanctum');
+
+Route::get('rpt-buku-besar', [RptFinanceController::class, 'getRptBukuBesar'])->middleware('auth:sanctum');
+Route::get('rpt-laba-rugi', [RptFinanceController::class, 'getRptLabaRugi'])->middleware('auth:sanctum');
+Route::get('rpt-neraca', [RptFinanceController::class, 'getRptNeraca'])->middleware('auth:sanctum');
 
