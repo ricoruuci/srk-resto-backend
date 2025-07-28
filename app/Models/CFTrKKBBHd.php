@@ -58,7 +58,7 @@ class CFTrKKBBHd extends BaseModel //nama class
             case when a.FlagKKBB in ('ark','arb','arc') then (select x.custname from MsCustomer x where x.custid=a.actor)
                  when a.FlagKKBB in ('apk','apb','apc') then (select x.NmSupplier from MsSupplier x where x.KdSupplier=a.actor)
                  else a.actor end as actor_name,
-            a.bankid as bank_id,b.NmBank as bank_name,a.note,a.upddate,a.upduser,a.total
+            a.bankid as bank_id,b.bankname as bank_name,a.note,a.upddate,a.upduser,a.total
             from cftrkkbbhd a 
             left join cfmsbank b on a.bankid = b.bankid
 			where 
@@ -90,7 +90,7 @@ class CFTrKKBBHd extends BaseModel //nama class
             case when a.FlagKKBB in ('ark','arb','arc') then (select x.custname from MsCustomer x where x.custid=a.actor)
                  when a.FlagKKBB in ('apk','apb','apc') then (select x.NmSupplier from MsSupplier x where x.KdSupplier=a.actor)
                  else a.actor end as actor_name,
-            a.bankid as bank_id,b.NmBank as bank_name,a.note,a.upddate,a.upduser,a.total
+            a.bankid as bank_id,b.bankname as bank_name,a.note,a.upddate,a.upduser,a.total
             from cftrkkbbhd a 
             left join cfmsbank b on a.bankid = b.bankid
 			WHERE a.voucherid = :voucherid ",
