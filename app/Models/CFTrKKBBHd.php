@@ -58,8 +58,9 @@ class CFTrKKBBHd extends BaseModel //nama class
             case when a.FlagKKBB in ('ark','arb','arc') then (select x.custname from MsCustomer x where x.custid=a.actor)
                  when a.FlagKKBB in ('apk','apb','apc') then (select x.NmSupplier from MsSupplier x where x.KdSupplier=a.actor)
                  else a.actor end as actor_name,
-            a.bankid,a.note,a.upddate,a.upduser,a.total
+            a.bankid as bank_id,b.NmBank as bank_name,a.note,a.upddate,a.upduser,a.total
             from cftrkkbbhd a 
+            left join msbank b on a.bankid = b.bankid
 			where 
 			convert(varchar(10),a.transdate,112) between :dari and :sampai and a.flagkkbb=:flagkkbb 
             and isnull(a.bankid,'') like :bankid and isnull(a.actor,'') like :actorkeyword and a.voucherid like :voucherkeyword 
@@ -89,8 +90,9 @@ class CFTrKKBBHd extends BaseModel //nama class
             case when a.FlagKKBB in ('ark','arb','arc') then (select x.custname from MsCustomer x where x.custid=a.actor)
                  when a.FlagKKBB in ('apk','apb','apc') then (select x.NmSupplier from MsSupplier x where x.KdSupplier=a.actor)
                  else a.actor end as actor_name,
-            a.bankid,a.note,a.upddate,a.upduser,a.total
+            a.bankid as bank_id,b.NmBank as bank_name,a.note,a.upddate,a.upduser,a.total
             from cftrkkbbhd a 
+            left join msbank b on a.bankid = b.bankid
 			WHERE a.voucherid = :voucherid ",
             [
                 'voucherid' => $param['voucher_id']
