@@ -118,6 +118,12 @@ class BeliController extends Controller
 
             $model_detail->insertAllItem($hasilpoid);
 
+            $model_detail->updateAllTransaction([
+                'id' => $hasilpoid,
+                'transdate' => $request->transdate,
+                'fgtrans' => 1
+            ]);
+
             DB::commit();
 
             return $this->responseSuccess('insert berhasil', 200, ['nota_beli' => $hasilpoid]);
@@ -229,6 +235,12 @@ class BeliController extends Controller
             $model_detail->deleteAllItem($request->nota_beli);
 
             $model_detail->insertAllItem($request->nota_beli);
+
+            $model_detail->updateAllTransaction([
+                'id' => $request->nota_beli,
+                'transdate' => $request->transdate,
+                'fgtrans' => 1
+            ]);
 
             DB::commit();
 

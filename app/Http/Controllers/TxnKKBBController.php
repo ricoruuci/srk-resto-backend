@@ -315,7 +315,7 @@ class TxnKKBBController extends Controller
     {
         $cfheader = new CFTrKKBBHd();
 
-        $id = $request->input('voucherid');
+        $id = $request->input('voucher_id');
 
         $cek = $cfheader->cekVoucher($id);
         if (is_null($cek)) {

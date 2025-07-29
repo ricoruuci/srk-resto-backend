@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Models\BaseModel;
 use function PHPUnit\Framework\isNull;
 
@@ -76,7 +77,7 @@ class JualDt extends BaseModel
     function deleteAllItem($id)
     {
         $result = DB::delete(
-            "DELETE FROM AllBB where Nota= :id",
+            "DELETE FROM allitem where voucherno= :id",
             [
                 'id' => $id
             ]
@@ -87,22 +88,118 @@ class JualDt extends BaseModel
 
     function insertAllItem($id)
     {
-        $result = DB::insert(
-            "INSERT into allbb (kode, bukti, tanggal, nota, kdbb, kdmenu, jumlah, harga, kdsat, kdpos, jmlasli, jumsat, satasli)
-            SELECT 51,a.nodetil,b.tgljual,a.nota,c.kdbb,a.kdmenu,a.jumlah*c.jumlah*(case when c.kdsat=d.satbesar then d.jumsat else 1 end),0,
-            d.satkecil,b.kdpos,a.jumlah*c.jumlah,d.jumsat,c.kdsat
-            from trjualdt a
-            inner join trjualhd b on a.nota=b.nota
-            left join msmenudt c on a.kdmenu=c.kdmenu
-            left join msbahanbaku d on c.kdbb=d.kdbb
-            where a.nota=:id ",
+        // Step 1: Ambil kebutuhan bahan baku dari penjualan
+        $bahanList = DB::select("
+            SELECT 
+                a.nota,
+                a.nodetil,
+                b.tgljual,
+                c.kdbb,
+                a.kdmenu,
+                a.jumlah * c.jumlah AS total_qty_bb,
+                b.kdpos,
+                a.upduser,
+                a.harga
+            FROM trjualdt a
+            JOIN trjualhd b ON a.nota = b.nota
+            LEFT JOIN msmenudt c ON a.kdmenu = c.kdmenu
+            WHERE a.nota = :nota", 
             [
-                'id' => $id
+                'nota' => $id
+            ]
+        );
+
+        foreach ($bahanList as $bahan) {
+            $neededQty = $bahan->total_qty_bb;
+            $remainingQty = $neededQty;
+            $tgljual = $bahan->tgljual;
+            $upduser = $bahan->upduser;
+            $harga = $bahan->harga;
+            // Step 2: Ambil FIFO stock dari allitem (sisa qty)
+            $stockList = DB::select("
+                SELECT 
+                    a.transdate,
+                    a.voucherno,
+                    a.itemid,
+                    a.qty,
+                    a.price,
+                    a.fgtrans,
+                    a.warehouseid,
+                    a.actorid,
+                    a.reffid,
+                    a.hpp,
+                    a.upddate,
+                    a.upduser,
+                    (a.qty - ISNULL((
+                        SELECT SUM(x.qty)
+                        FROM allitem x
+                        WHERE x.reffid = a.reffid 
+                        AND x.hpp = a.hpp 
+                        AND x.itemid = a.itemid 
+                        AND x.warehouseid = a.warehouseid 
+                        AND x.fgtrans > 50
+                    ), 0)) AS sisa_qty
+                FROM allitem a
+                WHERE a.fgtrans < 50 AND a.itemid = :itemid
+                ORDER BY a.transdate, a.voucherno ",  
+                [
+                    'itemid' => $bahan->kdbb
+                ]);
+
+            foreach ($stockList as $stock) {
+                if ($remainingQty <= 0) break;
+
+                $sisa = (float) $stock->sisa_qty;
+                if ($sisa <= 0) continue;
+
+                $usedQty = min($sisa, $remainingQty);
+                $remainingQty -= $usedQty;
+
+                $result = DB::insert(
+                    "INSERT into allitem (transdate,voucherno,itemid,qty,price,fgtrans,warehouseid,actorid,reffid,hpp,upddate,upduser)
+                    SELECT :transdate, :voucherno, :itemid, :qty, :price, :fgtrans, :warehouseid, :actorid, :reffid, :hpp, getdate(), :upduser",
+                    [
+                        'transdate'    => $tgljual,
+                        'voucherno'    => $id,
+                        'itemid'       => $stock->itemid,
+                        'qty'          => $usedQty,
+                        'price'        => $harga,
+                        'fgtrans'      => 51,
+                        'warehouseid'  => 'DL',
+                        'actorid'      => $id,
+                        'reffid'       => $stock->reffid,
+                        'hpp'          => $stock->hpp,
+                        'upduser'      => $upduser,
+                    ]
+                );
+            }
+        }
+
+        return $result;
+    }
+
+    function updateAllTransaction($params)
+    {
+        $result = DB::delete(
+            "DELETE FROM AllTransaction where VoucherNo= :id",
+            [
+                'id' => $params['id']
+            ]
+        );
+
+        $result = DB::insert(
+            "INSERT into AllTransaction (transdate,voucherno,fgtrans)
+            SELECT :transdate, :id, :fgtrans ",
+            [
+                'transdate' => $params['transdate'],
+                'id' => $params['id'],
+                'fgtrans' => $params['fgtrans'],
             ]
         );
 
         return $result;
     }
+
 
 }
 

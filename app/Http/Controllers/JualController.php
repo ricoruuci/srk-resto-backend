@@ -122,6 +122,12 @@ class JualController extends Controller
 
             $model_detail->insertAllItem($hasilpoid);
 
+            $model_detail->updateAllTransaction([
+                'id' => $hasilpoid,
+                'transdate' => $request->transdate,
+                'fgtrans' => 51
+            ]);
+
             DB::commit();
 
             return $this->responseSuccess('insert berhasil', 200, ['nota_jual' => $hasilpoid]);
@@ -230,6 +236,12 @@ class JualController extends Controller
             $model_detail->deleteAllItem($request->nota_jual);
 
             $model_detail->insertAllItem($request->nota_jual);
+
+            $model_detail->updateAllTransaction([
+                'id' => $request->nota_jual,
+                'transdate' => $request->transdate,
+                'fgtrans' => 51
+            ]);
 
             DB::commit();
 

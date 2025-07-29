@@ -22,6 +22,7 @@ use App\Http\Controllers\RptPenjualanController;
 use App\Http\Controllers\RptPembelianController;
 use App\Http\Controllers\SetRekeningController;
 use App\Http\Controllers\RptFinanceController;
+use App\Http\Controllers\RptInventoryController;
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
@@ -113,4 +114,7 @@ Route::get('rpt-hutang', [RptPembelianController::class, 'getLapHutang'])->middl
 Route::get('rpt-buku-besar', [RptFinanceController::class, 'getRptBukuBesar'])->middleware('auth:sanctum');
 Route::get('rpt-laba-rugi', [RptFinanceController::class, 'getRptLabaRugi'])->middleware('auth:sanctum');
 Route::get('rpt-neraca', [RptFinanceController::class, 'getRptNeraca'])->middleware('auth:sanctum');
+
+Route::get('rpt-stock-akhir', [RptInventoryController::class, 'getLapStock'])->middleware('auth:sanctum');
+Route::get('rpt-kartu-stock', [RptInventoryController::class, 'getLapKartuStock'])->middleware('auth:sanctum');
 

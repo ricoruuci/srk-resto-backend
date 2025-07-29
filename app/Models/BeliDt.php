@@ -77,7 +77,7 @@ class BeliDt extends BaseModel
     function deleteAllItem($id)
     {
         $result = DB::delete(
-            "DELETE FROM AllBB where Nota= :id",
+            "DELETE FROM AllItem where VoucherNo= :id",
             [
                 'id' => $id
             ]
@@ -89,14 +89,36 @@ class BeliDt extends BaseModel
     function insertAllItem($id)
     {
         $result = DB::insert(
-            "INSERT into allbb (kode, tanggal, nota, kdbb, jumlah, harga, kdsat, jmlasli, jumsat, satasli,kdsup)
-            SELECT 1,b.tglbeli,a.nota,a.kdbb,a.jml,a.harga,a.kdsat,a.jml,a.jml,a.kdsat,a.kdsupplier
+            "INSERT into allitem (transdate,voucherno,itemid,qty,price,fgtrans,warehouseid,actorid,reffid,hpp,upddate,upduser)
+            SELECT b.tglbeli,a.nota,a.kdbb,a.jml,a.harga,1,'DL',a.kdsupplier,a.nota,a.harga,getdate(),a.upduser
             from trbelibbdt a
             inner join trbelibbhd b on a.nota=b.nota and a.kdsupplier=b.kdsupplier
             left join msbahanbaku d on a.kdbb=d.kdbb
             where a.nota=:id  ",
             [
                 'id' => $id
+            ]
+        );
+
+        return $result;
+    }
+    
+    function updateAllTransaction($params)
+    {
+        $result = DB::delete(
+            "DELETE FROM AllTransaction where VoucherNo= :id",
+            [
+                'id' => $params['id']
+            ]
+        );
+
+        $result = DB::insert(
+            "INSERT into AllTransaction (transdate,voucherno,fgtrans)
+            SELECT :transdate, :id, :fgtrans ",
+            [
+                'transdate' => $params['transdate'],
+                'id' => $params['id'],
+                'fgtrans' => $params['fgtrans'],
             ]
         );
 
