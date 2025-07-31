@@ -86,7 +86,7 @@ class JualDt extends BaseModel
         return $result;
     }
 
-    function insertAllItem($id)
+    function insertAllItem($id) : void
     {
         // Step 1: Ambil kebutuhan bahan baku dari penjualan
         $bahanList = DB::select("
@@ -175,7 +175,6 @@ class JualDt extends BaseModel
             }
         }
 
-        return $result;
     }
 
     function updateAllTransaction($params)
