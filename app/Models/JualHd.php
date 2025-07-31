@@ -67,16 +67,36 @@ class JualHd extends BaseModel
         return $result;
     }
 
+    function updateBatal($params)
+    {
+        $result = DB::update(
+            "UPDATE TrJualHD
+            SET
+            fgbatal = 'Y',
+            upddate = getdate(),
+            upduser = :upduser
+            WHERE nota = :nota",
+            [
+                'nota' => $params['nota_jual'],
+                'upduser' => $params['upduser']
+            ]
+        );
+
+        return $result;
+    }
+
     function updatePayment($params)
     {
         $result = DB::update(
             "UPDATE TrJualHD SET
             PayType = :paytype,
-            FgBayar = 'Y'
+            FgBayar = 'Y',
+            bankid = :bank_id
             WHERE nota = :nota",
             [
                 'nota' => $params['nota_jual'],
-                'paytype' => $params['paytype']
+                'paytype' => $params['paytype'],
+                'bank_id' => $params['bank_id']
             ]
         );
 
@@ -130,7 +150,7 @@ class JualHd extends BaseModel
                  when isnull(b.fgstatus,'0')='2' then 'DELIVERY'
                  else 'No Data' end as status_name
             from trjualhd b
-            where convert(varchar(8),b.tgljual,112) = convert(varchar(8),getdate(),112) and b.fgbayar='T'
+            where convert(varchar(8),b.tgljual,112) = convert(varchar(8),getdate(),112) and b.fgbayar='T' and b.fgbatal='T'
             order by isnull(b.nomeja,'') "
         );
 
@@ -147,7 +167,7 @@ class JualHd extends BaseModel
                  when isnull(b.fgstatus,'0')='2' then 'DELIVERY'
                  else 'No Data' end as status_name
             from trjualhd b
-            where convert(varchar(8),b.tgljual,112) = convert(varchar(8),getdate(),112) and b.fgbayar='T'
+            where convert(varchar(8),b.tgljual,112) = convert(varchar(8),getdate(),112) and b.fgbayar='T' and b.fgbatal='T'
             and isnull(b.nomeja,'')=:id ",
             [
                 'id' => $id

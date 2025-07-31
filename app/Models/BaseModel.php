@@ -46,16 +46,16 @@ class BaseModel extends Model
             select $rek_kas,a.transdate,case when a.flagkkbb in ('KM') then 'D' else 'K' end,a.total,'IDR' as currid,1 as rate,'T' as fgpayment,a.voucherid,a.note 
             from cftrkkbbhd a
             where a.flagkkbb in ('KM','KK','APK') union all
-                        
-            select $rek_ar,tgljual,'d',isnull(TTLPj,0),'IDR',1,'T',nota,nota from TrJualHd union all 
-            select $rek_taxpj,tgljual,'k',isnull(TTLTax,0),'IDR',1,'T',nota,nota from TrJualHd union all 
-            select $rek_pj,tgljual,'k',isnull(STPj,0),'IDR',1,'T',nota,nota from TrJualHd union all
+
+            select $rek_ar,tgljual,'d',isnull(TTLPj,0),'IDR',1,'T',nota,nota from TrJualHd where fgbatal='T' union all
+            select $rek_taxpj,tgljual,'k',isnull(TTLTax,0),'IDR',1,'T',nota,nota from TrJualHd where fgbatal='T' union all
+            select $rek_pj,tgljual,'k',isnull(STPj,0),'IDR',1,'T',nota,nota from TrJualHd where fgbatal='T' union all
 
             select case when a.PayType=3 then $rek_kas else b.RekeningID end,a.tgljual,'d',isnull(a.TTLPj,0),'IDR',1,'T',a.nota,a.nota from TrJualHd a 
             left join CFMsBank b on a.BankId=b.bankid
-            where a.fgbayar='Y' union all 
+            where a.fgbayar='Y' and a.fgbatal='T' union all 
             select $rek_ar,tgljual,'K',isnull(TTLPj,0),'IDR',1,'T',nota,nota from TrJualHd 
-            where fgbayar='Y' union all 
+            where fgbayar='Y' and fgbatal='T' union all
 
             select $rek_pb,TglBeli,'d',isnull(STPb,0),'IDR',1,'T',nota,nota from TrBeliBBHd union all 
             select $rek_taxpb,TglBeli,'d',isnull(TTLTax,0),'IDR',1,'T',nota,nota from TrBeliBBHd union all 

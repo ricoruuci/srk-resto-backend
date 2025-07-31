@@ -75,6 +75,7 @@ Route::delete('supplier', [SupplierController::class, 'deleteData'])->middleware
 Route::get('penjualan', [JualController::class, 'getListData'])->middleware('auth:sanctum');
 Route::post('penjualan', [JualController::class, 'insertData'])->middleware('auth:sanctum');
 Route::patch('penjualan', [JualController::class, 'updateData'])->middleware('auth:sanctum');
+Route::patch('batal-penjualan', [JualController::class, 'updateBatal'])->middleware('auth:sanctum');
 
 Route::get('data-meja', [JualController::class, 'getDataMeja'])->middleware('auth:sanctum');
 Route::patch('payment', [JualController::class, 'updatePayment'])->middleware('auth:sanctum');
@@ -108,6 +109,7 @@ Route::patch('set-rekening', [SetRekeningController::class, 'updateData'])->midd
  *==============================================================================================================*/
 
 Route::get('rpt-penjualan', [RptPenjualanController::class, 'getLapPenjualan'])->middleware('auth:sanctum');
+Route::get('rpt-penjualan-harian', [RptPenjualanController::class, 'getLapPenjualanHarian'])->middleware('auth:sanctum');
 Route::get('rpt-pembelian', [RptPembelianController::class, 'getLapPembelian'])->middleware('auth:sanctum');
 Route::get('rpt-hutang', [RptPembelianController::class, 'getLapHutang'])->middleware('auth:sanctum');
 

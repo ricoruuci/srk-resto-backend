@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Jual\InsertRequest;
 use App\Http\Requests\Jual\UpdateRequest;
 use App\Http\Requests\Jual\UpdatePaymentRequest;
+use App\Http\Requests\Jual\UpdateBatalRequest;
 use App\Http\Requests\Jual\GetRequest;
 
 class JualController extends Controller
@@ -268,6 +269,7 @@ class JualController extends Controller
         $params = [
             'nota_jual' => $request->nota_jual,
             'paytype' => $request->payment_type ?? 3,
+            'bank_id' => $request->bank_id ?? '',
         ];
         // dd($params);
 
@@ -286,6 +288,46 @@ class JualController extends Controller
             DB::commit();
 
             return $this->responseSuccess('update berhasil', 200, ['nota_jual' => $request->nota_jual]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return $this->responseError($e->getMessage(), 400);
+        }
+
+    }
+
+    public function UpdateBatal(UpdateBatalRequest $request)
+    {
+        $model_header = new JualHd();
+
+        $cek = $model_header->cekData($request->nota_jual);
+
+        if ($cek == false) {
+
+            return $this->responseError('nota jual tidak ada atau tidak ditemukan', 400);
+        }
+
+        $params = [
+            'nota_jual' => $request->nota_jual,
+            'upduser' => Auth::user()->currentAccessToken()['namauser'],
+        ];
+        // dd($params);
+
+        DB::beginTransaction();
+
+        try {
+
+            $insertheader = $model_header->updateBatal($params);
+
+            if ($insertheader == false) {
+                DB::rollBack();
+
+                return $this->responseError('nota gagal di update', 400);
+            }
+
+            DB::commit();
+
+            return $this->responseSuccess('nota berhasil dibatalkan', 200, ['nota_jual' => $request->nota_jual]);
         } catch (\Exception $e) {
             DB::rollBack();
 
