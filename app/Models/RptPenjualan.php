@@ -35,24 +35,31 @@ class RptPenjualan extends BaseModel
 
     function getLapPenjualanHarian($transdate)
     {
+        $total_per_group = 0;
+        $total_per_menu = 0;
+        $total_payment = 0;
+        
         $per_group = DB::select(
-            "SELECT c.KdGroupMenu,d.NmGroupMenu,isnull(sum(a.jumlah),0) as qty,isnull(sum(a.jumlah*a.harga),0) as total 
-            from TrJualdt a 
-            left join TrJualHd b on a.Nota=b.Nota and b.FgBatal='T'
-            left join MsMenuHd c on a.KdMenu=c.KdMenu
-            left join MsGroupMenu d on c.KdGroupMenu=d.KdGroupMenu
+            "SELECT c.kdgroupmenu,d.nmgroupmenu,isnull(sum(a.jumlah),0) as qty,isnull(sum(a.jumlah*a.harga),0) as total from trjualdt a 
+            left join trjualhd b on a.nota=b.nota and b.fgbatal='t'
+            left join msmenuhd c on a.kdmenu=c.kdmenu
+            left join msgroupmenu d on c.kdgroupmenu=d.kdgroupmenu
             where convert(varchar(10),b.tgljual,112) = :transdate and b.fgbatal='T'
-            group by c.KdGroupMenu,d.NmGroupMenu
-            order by c.KdGroupMenu ",
+            group by c.kdgroupmenu,d.nmgroupmenu
+            order by c.kdgroupmenu ",
             [
                 'transdate' => $transdate
             ]
         );
 
+        foreach ($per_group as $group) {
+            $total_per_group += $group->total;
+        }
+
         $per_menu = DB::select(
-            "SELECT c.kdgroupmenu,a.kdmenu,c.NmMenu,isnull(sum(a.jumlah),0) as qty,a.harga,isnull(sum(a.jumlah*a.harga),0) as total from TrJualdt a 
-            left join TrJualHd b on a.Nota=b.Nota and b.FgBatal='T'
-            left join MsMenuHd c on a.KdMenu=c.KdMenu
+            "SELECT c.kdgroupmenu,a.kdmenu,c.nmmenu,isnull(sum(a.jumlah),0) as qty,a.harga,isnull(sum(a.jumlah*a.harga),0) as total from trjualdt a 
+            left join trjualhd b on a.nota=b.nota and b.fgbatal='t'
+            left join msmenuhd c on a.kdmenu=c.kdmenu
             where convert(varchar(10),b.tgljual,112) = :transdate and b.fgbatal='T'
             group by c.kdgroupmenu,a.kdmenu,c.NmMenu,a.harga
             order by c.kdgroupmenu,c.NmMenu,a.kdmenu,a.harga ",
@@ -60,6 +67,10 @@ class RptPenjualan extends BaseModel
                 'transdate' => $transdate
             ]
         );
+
+        foreach ($per_menu as $menu) {
+            $total_per_menu += $menu->total;
+        }
 
         $count_transaksi = DB::selectOne(
             "SELECT isnull(sum(1),0) as total,
@@ -74,24 +85,38 @@ class RptPenjualan extends BaseModel
         );
 
         $payment = DB::select(
-            "SELECT a.paytype,CASE WHEN a.FgBayar='Y' THEN 
+            "SELECT case when a.fgbayar='T' then 'X' else cast(a.paytype as varchar(10)) end as payment_type,
+            CASE WHEN a.FgBayar='Y' THEN 
             (case when a.paytype=0 then 'QRIS' when a.paytype=1 then 'DEBIT' when a.paytype=2 then 'CREDIT' else 'CASH' end)
             ELSE 'BELUM BAYAR'
             end as payment_type_name,
             isnull(sum(a.ttlpj),0) as total from TrJualHd a 
-            where  a.FgBatal='T'
+            where  a.FgBatal='T' and a.fgbayar='Y'
             and convert(varchar(10),a.tgljual,112) = :transdate
             group by a.paytype,a.fgbayar ",
             [
                 'transdate' => $transdate
             ]
         );
+
+        foreach ($payment as $pay) {
+            $total_payment += $pay->total;
+        }
         
         $result = [
-            'per_group' => $per_group,
-            'per_menu' => $per_menu,
+            'per_group' => [
+                'detail' => $per_group, 
+                'total_per_group' => $total_per_group
+            ],
+            'per_menu' => [
+                'detail' => $per_menu, 
+                'total_per_menu' => $total_per_menu
+            ],
             'count_transaksi' => $count_transaksi,
-            'payment' => $payment
+            'payment' => [
+                'detail' => $payment, 
+                'total_payment' => $total_payment
+            ]
         ];
 
         return $result;
