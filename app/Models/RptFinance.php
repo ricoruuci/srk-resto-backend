@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Models\BaseModel;
+use App\Models\User;
 use function PHPUnit\Framework\isNull;
 
 class RptFinance extends BaseModel
@@ -20,7 +21,16 @@ class RptFinance extends BaseModel
             $addCon = '';
         }
 
-        $addquery = $this->queryAccounting();
+        if (!empty($params['company_id'])) 
+        {
+            $addquery = $this->queryAccounting([
+                'company_id' => $params['company_id']
+            ]);
+        }
+        else
+        {
+            $addquery = $this->queryAccounting([]);
+        }
 
         $result = DB::select(
             "SELECT m.fgtipe as tipe,k.rekeningid,l.grouprekid,l.rekeningname,
@@ -84,7 +94,16 @@ class RptFinance extends BaseModel
     function getRptLabaRugi($param)
     {
 
-        $addquery = $this->queryAccounting();
+        if (!empty($params['company_id'])) 
+        {
+            $addquery = $this->queryAccounting([
+                'company_id' => $params['company_id']
+            ]);
+        }
+        else
+        {
+            $addquery = $this->queryAccounting([]);
+        }
 
         $result = DB::select(
             "SELECT isnull(sum(k.jumlah),0) as laba from (
@@ -160,7 +179,16 @@ class RptFinance extends BaseModel
     function getRptNeraca($param)
     {
 
-        $addquery = $this->queryAccounting();
+        if (!empty($params['company_id'])) 
+        {
+            $addquery = $this->queryAccounting([
+                'company_id' => $params['company_id']
+            ]);
+        }
+        else
+        {
+            $addquery = $this->queryAccounting([]);
+        }
 
         $result = DB::select(
             "SELECT k.fgtipe,k.subkomponen as keterangan,l.total as total from 

@@ -23,9 +23,21 @@ use App\Http\Controllers\RptPembelianController;
 use App\Http\Controllers\SetRekeningController;
 use App\Http\Controllers\RptFinanceController;
 use App\Http\Controllers\RptInventoryController;
+use App\Http\Controllers\CabangController;
+use App\Http\Controllers\UserController;
+
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+Route::get('list-cabang', [CabangController::class, 'getListData'])->middleware('auth:sanctum');
+
+Route::get('user', [UserController::class, 'getListData'])->middleware('auth:sanctum');
+Route::get('user-by-id', [UserController::class, 'getDataById'])->middleware('auth:sanctum');
+Route::post('user', [UserController::class, 'insertData'])->middleware('auth:sanctum');
+Route::patch('user', [UserController::class, 'updateData'])->middleware('auth:sanctum');
+Route::delete('user', [UserController::class, 'deleteData'])->middleware('auth:sanctum');
+Route::patch('change-password', [UserController::class, 'updatePassword'])->middleware('auth:sanctum');
 
 // Route::get('waiter', [WaiterController::class, 'getListData'])->middleware('auth:sanctum');
 Route::get('menu-penjualan', [MenuController::class, 'getListMenuPenjualan'])->middleware('auth:sanctum');

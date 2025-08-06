@@ -74,7 +74,7 @@ class JualDt extends BaseModel
         return $result;
     }
 
-    function deleteAllItem($id)
+    function deleteAllItem($id) : void
     {
         $result = DB::delete(
             "DELETE FROM allitem where voucherno= :id",
@@ -83,10 +83,9 @@ class JualDt extends BaseModel
             ]
         );
 
-        return $result;
     }
 
-    function insertAllItem($id) : void
+    function insertAllItem($id,$company_id) : void
     {
         // Step 1: Ambil kebutuhan bahan baku dari penjualan
         $bahanList = DB::select("
@@ -99,10 +98,13 @@ class JualDt extends BaseModel
                 a.jumlah * c.jumlah AS total_qty_bb,
                 b.kdpos,
                 a.upduser,
-                a.harga
+                a.harga,
+                e.company_code,
+                b.company_id
             FROM trjualdt a
             JOIN trjualhd b ON a.nota = b.nota
             LEFT JOIN msmenudt c ON a.kdmenu = c.kdmenu
+            left join mscabang e on b.company_id=e.company_id
             WHERE a.nota = :nota", 
             [
                 'nota' => $id
@@ -115,6 +117,8 @@ class JualDt extends BaseModel
             $tgljual = $bahan->tgljual;
             $upduser = $bahan->upduser;
             $harga = $bahan->harga;
+            $company_ids = $bahan->company_id;
+            $warehouse = $bahan->company_code;
             // Step 2: Ambil FIFO stock dari allitem (sisa qty)
             $stockList = DB::select("
                 SELECT 
@@ -137,6 +141,7 @@ class JualDt extends BaseModel
                         AND x.hpp = a.hpp 
                         AND x.itemid = a.itemid 
                         AND x.warehouseid = a.warehouseid 
+                        AND x.company_id = a.company_id
                         AND x.fgtrans > 50
                     ), 0)) AS sisa_qty
                 FROM allitem a
@@ -156,8 +161,8 @@ class JualDt extends BaseModel
                 $remainingQty -= $usedQty;
 
                 $result = DB::insert(
-                    "INSERT into allitem (transdate,voucherno,itemid,qty,price,fgtrans,warehouseid,actorid,reffid,hpp,upddate,upduser)
-                    SELECT :transdate, :voucherno, :itemid, :qty, :price, :fgtrans, :warehouseid, :actorid, :reffid, :hpp, getdate(), :upduser",
+                    "INSERT into allitem (transdate,voucherno,itemid,qty,price,fgtrans,warehouseid,actorid,reffid,hpp,upddate,upduser,company_id)
+                    SELECT :transdate, :voucherno, :itemid, :qty, :price, :fgtrans, :warehouseid, :actorid, :reffid, :hpp, getdate(), :upduser, :company_id",
                     [
                         'transdate'    => $tgljual,
                         'voucherno'    => $id,
@@ -165,11 +170,12 @@ class JualDt extends BaseModel
                         'qty'          => $usedQty,
                         'price'        => $harga,
                         'fgtrans'      => 51,
-                        'warehouseid'  => 'DL',
+                        'warehouseid'  => $warehouse,
                         'actorid'      => $id,
                         'reffid'       => $stock->reffid,
                         'hpp'          => $stock->hpp,
                         'upduser'      => $upduser,
+                        'company_id'   => $company_ids 
                     ]
                 );
             }
@@ -177,7 +183,7 @@ class JualDt extends BaseModel
 
     }
 
-    function updateAllTransaction($params)
+    function updateAllTransaction($params) : void
     {
         $result = DB::delete(
             "DELETE FROM AllTransaction where VoucherNo= :id",
@@ -187,16 +193,16 @@ class JualDt extends BaseModel
         );
 
         $result = DB::insert(
-            "INSERT into AllTransaction (transdate,voucherno,fgtrans)
-            SELECT :transdate, :id, :fgtrans ",
+            "INSERT into AllTransaction (transdate,voucherno,fgtrans,company_id)
+            SELECT :transdate, :id, :fgtrans, :company_id ",
             [
                 'transdate' => $params['transdate'],
                 'id' => $params['id'],
                 'fgtrans' => $params['fgtrans'],
+                'company_id' => $params['company_id'],
             ]
         );
 
-        return $result;
     }
 
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\RptPenjualan;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ArrayPaginator;
@@ -21,11 +22,26 @@ class RptPenjualanController extends Controller
     {
         $model = new RptPenjualan();
 
-        $result = $model->getLapPenjualan([
-            'dari' => $request->input('dari'),
-            'sampai' => $request->input('sampai'),
-            'search_keyword' => $request->input('search_keyword', '')
-        ]);
+        $user = new User();
+        $cek = $user->cekLevel(Auth::user()->currentAccessToken()['namauser']);
+
+        if ($cek->kdjabatan=='ADM')
+        {
+            $result = $model->getLapPenjualan([
+                'dari' => $request->input('dari'),
+                'sampai' => $request->input('sampai'),
+                'search_keyword' => $request->input('search_keyword', '')
+            ]);
+        }
+        else
+        {
+            $result = $model->getLapPenjualan([
+                'dari' => $request->input('dari'),
+                'sampai' => $request->input('sampai'),
+                'search_keyword' => $request->input('search_keyword', ''),
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
+            ]);
+        }
 
         $resultPaginated = $this->arrayPaginator($request, $result);
 
@@ -35,8 +51,22 @@ class RptPenjualanController extends Controller
     public function getLapPenjualanHarian(GetLapPenjualanHarianRequest $request)
     {
         $model = new RptPenjualan();
+        $user = new User();
+        $cek = $user->cekLevel(Auth::user()->currentAccessToken()['namauser']);
 
-        $result = $model->getLapPenjualanHarian($request->input('transdate'));
+        if ($cek->kdjabatan=='ADM')
+        {
+            $result = $model->getLapPenjualanHarian([
+                'transdate' => $request->input('transdate')
+            ]);
+        }
+        else
+        {
+            $result = $model->getLapPenjualanHarian([
+                'transdate' => $request->input('transdate'),
+                'company_id' => Auth::user()->currentAccessToken()['namauser']
+            ]);
+        }
 
         return $this->responseData($result);
     }

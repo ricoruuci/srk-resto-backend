@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
 use App\Models\BeliDt;
 use App\Models\BeliHd;
 use App\Models\Satuan;
@@ -45,12 +46,13 @@ class BeliController extends Controller
             'ppn' => $request->ppn ?? 0,
             'note' => $request->note ?? '',
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
+            'company_id' => Auth::user()->currentAccessToken()['company_id'],
         ];
 
         DB::beginTransaction();
 
         try {
-            $hasilpoid = $model_header->beforeAutoNumber($request->transdate);
+            $hasilpoid = $model_header->beforeAutoNumber($request->transdate,Auth::user()->currentAccessToken()['company_code']);
 
             $params['nota_beli'] = $hasilpoid;
 
@@ -116,12 +118,13 @@ class BeliController extends Controller
 
             $model_detail->deleteAllItem($hasilpoid);
 
-            $model_detail->insertAllItem($hasilpoid);
+            $model_detail->insertAllItem($hasilpoid,Auth::user()->currentAccessToken()['company_id']);
 
             $model_detail->updateAllTransaction([
                 'id' => $hasilpoid,
                 'transdate' => $request->transdate,
-                'fgtrans' => 1
+                'fgtrans' => 1,
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
             ]);
 
             DB::commit();
@@ -234,12 +237,13 @@ class BeliController extends Controller
 
             $model_detail->deleteAllItem($request->nota_beli);
 
-            $model_detail->insertAllItem($request->nota_beli);
+            $model_detail->insertAllItem($request->nota_beli,Auth::user()->currentAccessToken()['company_id']);
 
             $model_detail->updateAllTransaction([
                 'id' => $request->nota_beli,
                 'transdate' => $request->transdate,
-                'fgtrans' => 1
+                'fgtrans' => 1,
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
             ]);
 
             DB::commit();
@@ -256,13 +260,29 @@ class BeliController extends Controller
     public function getListData(GetRequest $request)
     {
         $model = new BeliHd();
+        $user = new User();
 
-        $result = $model->getAllData([
-            'dari' => $request->dari,
-            'sampai' => $request->sampai,
-            'search_keyword' => $request->search_keyword,
-            'supplier_keyword' => $request->supplier_keyword
-        ]);
+        $level = $user->cekLevel(Auth::user()->currentAccessToken()['namauser']);
+
+        if ($level->kdjabatan=='ADM')
+        {
+            $result = $model->getAllData([
+                'dari' => $request->dari,
+                'sampai' => $request->sampai,
+                'search_keyword' => $request->search_keyword,
+                'supplier_keyword' => $request->supplier_keyword,
+            ]);
+        }
+        else
+        {
+            $result = $model->getAllData([
+                'dari' => $request->dari,
+                'sampai' => $request->sampai,
+                'search_keyword' => $request->search_keyword,
+                'supplier_keyword' => $request->supplier_keyword,
+                'company_id' => $level->company_id
+            ]);
+        }
 
         $resultPaginated = $this->arrayPaginator($request, $result);
 

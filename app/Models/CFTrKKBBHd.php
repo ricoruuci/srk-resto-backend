@@ -22,9 +22,9 @@ class CFTrKKBBHd extends BaseModel //nama class
 
         $result = DB::insert(
             "INSERT INTO cftrkkbbhd
-            (voucherid,transdate,actor,bankid,note,flagkkbb,upddate,upduser,currid,total) 
+            (voucherid,transdate,actor,bankid,note,flagkkbb,upddate,upduser,currid,total,company_id) 
             VALUES 
-            (:voucherid,:transdate,:actor,:bankid,:note,:flagkkbb,getDate(),:upduser,:currid,:total)", 
+            (:voucherid,:transdate,:actor,:bankid,:note,:flagkkbb,getDate(),:upduser,:currid,:total,:company_id)", 
             [
             'voucherid' => $param['voucherid'],
             'transdate' => $param['transdate'],
@@ -34,7 +34,8 @@ class CFTrKKBBHd extends BaseModel //nama class
             'flagkkbb' => $param['flagkkbb'],
             'upduser' => $param['upduser'],
             'currid' => $param['currid'],
-            'total' => $param['total']
+            'total' => $param['total'],
+            'company_id' => $param['company_id']
             ]
         );        
 
@@ -48,6 +49,34 @@ class CFTrKKBBHd extends BaseModel //nama class
         } else {
             $order = 'ASC';
         }
+
+        $addCon = ''; // default kosong
+
+        if (!empty($params['company_id'])) 
+        {
+            $addCon = 'and a.company_id =:company_id ';
+            $binding = [
+                'dari' => $param['dari'],
+                'sampai' => $param['sampai'],
+                'flagkkbb' => $param['flagkkbb'],
+                'bankid' => '%' . $param['bankid'] . '%',
+                'actorkeyword' => '%' . $param['actorkeyword'] . '%',
+                'voucherkeyword' => '%' . $param['voucherkeyword'] . '%',
+                'company_id' => $param['company_id']
+            ];
+        }
+        else
+        {
+            $binding = [
+                'dari' => $param['dari'],
+                'sampai' => $param['sampai'],
+                'flagkkbb' => $param['flagkkbb'],
+                'bankid' => '%' . $param['bankid'] . '%',
+                'actorkeyword' => '%' . $param['actorkeyword'] . '%',
+                'voucherkeyword' => '%' . $param['voucherkeyword'] . '%',
+            ];
+        }
+
         $result = DB::select(
             "SELECT 
             case when a.flagkkbb in ('apb','arb','bm','bk') then 'Y' else 'T' end as txnbank,
@@ -63,16 +92,10 @@ class CFTrKKBBHd extends BaseModel //nama class
             left join cfmsbank b on a.bankid = b.bankid
 			where 
 			convert(varchar(10),a.transdate,112) between :dari and :sampai and a.flagkkbb=:flagkkbb 
+            $addCon
             and isnull(a.bankid,'') like :bankid and isnull(a.actor,'') like :actorkeyword and a.voucherid like :voucherkeyword 
             order by a.transdate $order",
-            [
-                'dari' => $param['dari'],
-                'sampai' => $param['sampai'],
-                'flagkkbb' => $param['flagkkbb'],
-                'bankid' => '%' . $param['bankid'] . '%',
-                'actorkeyword' => '%' . $param['actorkeyword'] . '%',
-                'voucherkeyword' => '%' . $param['voucherkeyword'] . '%',
-            ]
+            $binding
         );
 
         return $result;
@@ -153,13 +176,13 @@ class CFTrKKBBHd extends BaseModel //nama class
         return $result;
     }
 
-    public function beforeAutoNumber($fgtrans, $transdate)
+    public function beforeAutoNumber($fgtrans, $transdate, $company_code)
     {
 
         $year = substr($transdate, 2, 2);
         $month = substr($transdate, 4, 2);
 
-        $autoNumber = $this->autoNumber($this->table, 'voucherid', $fgtrans.'/'.$year.'/'.$month.'-', '0000');
+        $autoNumber = $this->autoNumber($this->table, 'voucherid', $fgtrans.'/'.$company_code.'/'.$year.'/'.$month.'-', '0000');
 
         return $autoNumber;
     }

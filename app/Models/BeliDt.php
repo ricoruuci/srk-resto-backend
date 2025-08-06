@@ -74,7 +74,7 @@ class BeliDt extends BaseModel
         return $result;
     }
 
-    function deleteAllItem($id)
+    function deleteAllItem($id) : void
     {
         $result = DB::delete(
             "DELETE FROM AllItem where VoucherNo= :id",
@@ -83,27 +83,27 @@ class BeliDt extends BaseModel
             ]
         );
 
-        return $result;
     }
 
-    function insertAllItem($id)
+    function insertAllItem($id,$company_id) : void
     {
         $result = DB::insert(
-            "INSERT into allitem (transdate,voucherno,itemid,qty,price,fgtrans,warehouseid,actorid,reffid,hpp,upddate,upduser)
-            SELECT b.tglbeli,a.nota,a.kdbb,a.jml,a.harga,1,'DL',a.kdsupplier,a.nota,a.harga,getdate(),a.upduser
+            "INSERT into allitem (transdate,voucherno,itemid,qty,price,fgtrans,warehouseid,actorid,reffid,hpp,upddate,upduser,company_id)
+            SELECT b.tglbeli,a.nota,a.kdbb,a.jml,a.harga,1,e.company_code,a.kdsupplier,a.nota,a.harga,getdate(),a.upduser,b.company_id
             from trbelibbdt a
             inner join trbelibbhd b on a.nota=b.nota and a.kdsupplier=b.kdsupplier
             left join msbahanbaku d on a.kdbb=d.kdbb
-            where a.nota=:id  ",
+            left join mscabang e on b.company_id=e.company_id
+            where a.nota=:id  and b.company_id=:company_id ",
             [
-                'id' => $id
+                'id' => $id,
+                'company_id' => $company_id
             ]
         );
 
-        return $result;
     }
     
-    function updateAllTransaction($params)
+    function updateAllTransaction($params) : void
     {
         $result = DB::delete(
             "DELETE FROM AllTransaction where VoucherNo= :id",
@@ -113,16 +113,16 @@ class BeliDt extends BaseModel
         );
 
         $result = DB::insert(
-            "INSERT into AllTransaction (transdate,voucherno,fgtrans)
-            SELECT :transdate, :id, :fgtrans ",
+            "INSERT into AllTransaction (transdate,voucherno,fgtrans,company_id)
+            SELECT :transdate, :id, :fgtrans,:company_id ",
             [
                 'transdate' => $params['transdate'],
                 'id' => $params['id'],
                 'fgtrans' => $params['fgtrans'],
+                'company_id' => $params['company_id']
             ]
         );
 
-        return $result;
     }
 
 }

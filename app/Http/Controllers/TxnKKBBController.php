@@ -9,6 +9,7 @@ use App\Models\CFTrKKBBHd;
 use App\Models\Supplier;
 use App\Models\Bank;
 use App\Models\Rekening;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ArrayPaginator;
@@ -33,7 +34,6 @@ class TxnKKBBController extends Controller
         $msbank = new Bank();
         $mssupplier = new Supplier();
 
-
         if ($request->input('flagkkbb')=='JU' and $request->input('total')<>0){
             return $this->responseError('Transaksi Jurnal Umum harus memiliki total 0', 400);
         }
@@ -43,7 +43,6 @@ class TxnKKBBController extends Controller
             if($cek==false){
                 return $this->responseError('kode bank tidak terdaftar dalam master', 400);
             }
-        
         }
 
         if ($request->input('flagkkbb')=='APB' or $request->input('flagkkbb')=='APK'){
@@ -51,7 +50,6 @@ class TxnKKBBController extends Controller
             if($cek==false){
                 return $this->responseError('kode supplier tidak terdaftar dalam master', 400);
             }
-        
         }
 
         $arrDetail = $request->input('detail');
@@ -95,7 +93,7 @@ class TxnKKBBController extends Controller
 
         try 
         {
-            $hasilvoucherid = $cfheader->beforeAutoNumber($request->input('flagkkbb'), $request->input('transdate'));
+            $hasilvoucherid = $cfheader->beforeAutoNumber($request->input('flagkkbb'), $request->input('transdate'),Auth::user()->currentAccessToken()['company_code']);
 
             $insertheader = $cfheader->insertData([
                 'voucherid' => $hasilvoucherid,
@@ -106,7 +104,8 @@ class TxnKKBBController extends Controller
                 'flagkkbb' => $request->input('flagkkbb'),
                 'currid' => $request->input('currid') ?? 'IDR',
                 'total' => $request->input('total'),
-                'upduser' => Auth::user()->currentAccessToken()['namauser']
+                'upduser' => Auth::user()->currentAccessToken()['namauser'],
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
             ]);
 
             if ($insertheader == false) {
@@ -148,18 +147,40 @@ class TxnKKBBController extends Controller
     {
         $cfheader = new CFTrKKBBHd();
         $cfdetail = new CFTrKKBBDt();
-           
-        $result = $cfheader->getListData(
-            [
-                'dari' => $request->input('dari'),
-                'sampai' => $request->input('sampai'),
-                'flagkkbb' => $request->input('flagkkbb'),
-                'bankid' => $request->input('bank_id') ?? '',
-                'actorkeyword' => $request->input('actorkeyword') ?? '',
-                'voucherkeyword' => $request->input('voucherkeyword') ?? '',
-                'sortby' => $request->input('sortby') ?? 'old'
-            ]
-        );
+        
+        $user = new User();
+
+        $level = $user->cekLevel(Auth::user()->currentAccessToken()['namauser']);
+
+        if ($level->kdjabatan=='ADM')
+        {    
+            $result = $cfheader->getListData(
+                [
+                    'dari' => $request->input('dari'),
+                    'sampai' => $request->input('sampai'),
+                    'flagkkbb' => $request->input('flagkkbb'),
+                    'bankid' => $request->input('bank_id') ?? '',
+                    'actorkeyword' => $request->input('actorkeyword') ?? '',
+                    'voucherkeyword' => $request->input('voucherkeyword') ?? '',
+                    'sortby' => $request->input('sortby') ?? 'old'
+                ]
+            );
+        }
+        else
+        {
+           $result = $cfheader->getListData(
+                [
+                    'dari' => $request->input('dari'),
+                    'sampai' => $request->input('sampai'),
+                    'flagkkbb' => $request->input('flagkkbb'),
+                    'bankid' => $request->input('bank_id') ?? '',
+                    'actorkeyword' => $request->input('actorkeyword') ?? '',
+                    'voucherkeyword' => $request->input('voucherkeyword') ?? '',
+                    'sortby' => $request->input('sortby') ?? 'old',
+                    'company_id' => Auth::user()->currentAccessToken()['company_id']
+                ]
+            ); 
+        }
 
         $resultPaginated = $this->arrayPaginator($request, $result);
 
@@ -217,7 +238,6 @@ class TxnKKBBController extends Controller
             if($cek==false){
                 return $this->responseError('kode supplier tidak terdaftar dalam master', 400);
             }
-        
         }
         
         $arrDetail = $request->input('detail');
@@ -357,7 +377,8 @@ class TxnKKBBController extends Controller
         $result = $cfdetail->cariNota(
             [
                 'transdate' => $request->input('transdate'),
-                'actor' => $request->input('actor')
+                'actor' => $request->input('actor'),
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
             ]
         );
 

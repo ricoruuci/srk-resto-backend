@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ArrayPaginator;
 use App\Traits\HttpResponse;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\RptFinance\GetRequestBukuBesar;
 use App\Http\Requests\RptFinance\GetRequestLabaRugi;
@@ -33,11 +34,26 @@ class RptFinanceController extends Controller
             }
         }
 
-        $result = $model->getRptBukuBesar([
-            'dari' => $request->input('dari'),
-            'sampai' => $request->input('sampai'),
-            'rekening_id' => $request->input('rekening_id', '')
-        ]);
+        $user = new User();
+        $cek = $user->cekLevel(Auth::user()->currentAccessToken()['namauser']);
+
+        if ($cek->kdjabatan=='ADM')
+        {
+            $result = $model->getRptBukuBesar([
+                'dari' => $request->input('dari'),
+                'sampai' => $request->input('sampai'),
+                'rekening_id' => $request->input('rekening_id', '')
+            ]);
+        }
+        else
+        {
+            $result = $model->getRptBukuBesar([
+                'dari' => $request->input('dari'),
+                'sampai' => $request->input('sampai'),
+                'rekening_id' => $request->input('rekening_id', ''),
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
+            ]);
+        }
 
         return $this->responseData($result);
     }
@@ -46,10 +62,24 @@ class RptFinanceController extends Controller
     {
         $model = new RptFinance();
 
-        $result = $model->getRptLabaRugi([
-            'dari' => $request->input('dari'),
-            'sampai' => $request->input('sampai')
-        ]);
+        $user = new User();
+        $cek = $user->cekLevel(Auth::user()->currentAccessToken()['namauser']);
+
+        if ($cek->kdjabatan=='ADM')
+        {
+            $result = $model->getRptLabaRugi([
+                'dari' => $request->input('dari'),
+                'sampai' => $request->input('sampai')
+            ]);
+        }
+        else
+        {
+            $result = $model->getRptLabaRugi([
+                'dari' => $request->input('dari'),
+                'sampai' => $request->input('sampai'),
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
+            ]); 
+        }
 
         return $this->responseData($result);
     }
@@ -58,9 +88,22 @@ class RptFinanceController extends Controller
     {
         $model = new RptFinance();
 
-        $result = $model->getRptNeraca([
-            'periode' => $request->input('periode')
-        ]);
+        $user = new User();
+        $cek = $user->cekLevel(Auth::user()->currentAccessToken()['namauser']);
+
+        if ($cek->kdjabatan=='ADM')
+        {
+            $result = $model->getRptNeraca([
+                'periode' => $request->input('periode')
+            ]);
+        }
+        else
+        {
+            $result = $model->getRptNeraca([
+                'periode' => $request->input('periode'),
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
+            ]); 
+        }
 
         return $this->responseData($result);
     }

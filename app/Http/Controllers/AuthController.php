@@ -18,6 +18,7 @@ class AuthController extends Controller
 
     public function login(Request $request, User $user)
     {
+
         $isLoginSuccess = $user->isLoginValid($request->userid, $request->password);
 
         if ($isLoginSuccess == false)
@@ -43,8 +44,11 @@ class AuthController extends Controller
 
                 DB::commit();
 
+                $cabang = $user->getCabang($request->userid);
+
                 return response()->json([
                     'user_data' => $userData,
+                    'cabang' => $cabang,
                     'token' => $token->plainTextToken
                 ]);
 

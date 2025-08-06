@@ -74,14 +74,15 @@ class CFTrKKBBDt extends Model //nama class
             isnull((select sum(case when x.jenis='d' then x.amount else x.amount*-1 end) from cftrkkbbdt x 
             inner join cftrkkbbhd y on x.voucherid=y.voucherid where x.note=a.nota and convert(varchar(10),y.transdate,112) <= :tgl1),0) as bayar
             from trbelibbhd a 
-            where convert(varchar(10),a.tglbeli,112) <= :tgl2 and a.kdsupplier=:actor
+            where convert(varchar(10),a.tglbeli,112) <= :tgl2 and a.kdsupplier=:actor and a.company_id=:company_id
             ) as k
             where k.total-k.bayar<>0
             order by k.nota ",
             [
                 'actor' => $param['actor'],
                 'tgl1' => $param['transdate'],
-                'tgl2' => $param['transdate']
+                'tgl2' => $param['transdate'],
+                'company_id' => $param['company_id']
             ]
         );
         

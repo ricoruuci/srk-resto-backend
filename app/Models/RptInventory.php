@@ -21,21 +21,36 @@ class RptInventory extends BaseModel
             $condition = " AND k.stock <> 0 ";
         }
 
+        if (!empty($params['company_id'])) 
+        {
+            $condition = $condition . " and k.company_id=:company_id ";
+            $bindings = [
+                            'transdate' => $params['transdate'],
+                            'search_keyword' => '%'.$params['search_keyword'].'%',
+                            'search_keyword2' => '%'.$params['search_keyword'].'%',
+                            'company_id' => $params['company_id']
+            ];
+        }
+        else
+        {
+            $bindings = [
+                            'transdate' => $params['transdate'],
+                            'search_keyword' => '%'.$params['search_keyword'].'%',
+                            'search_keyword2' => '%'.$params['search_keyword'].'%'
+            ];
+        }
+
         $result = DB::select(
             "SELECT k.itemid as bahan_baku_id,l.nmbb as bahan_baku_name,k.stock,k.hpp,l.satkecil as satuan,k.stock*k.hpp as total_hpp from (
-            select a.itemid,isnull(sum(case when a.fgtrans<50 then a.qty else a.qty*-1 end),0) as stock,'DL' as warehouseid,a.hpp from allitem a
+            select a.itemid,isnull(sum(case when a.fgtrans<50 then a.qty else a.qty*-1 end),0) as stock,a.warehouseid,a.hpp,a.company_id from allitem a
             where convert(varchar(10),a.transdate,112) <= :transdate
-            group by a.itemid,a.hpp
+            group by a.itemid,a.hpp,a.company_id,a.warehouseid
             ) as k
             left join msbahanbaku l on k.itemid=l.kdbb
             where (k.itemid like :search_keyword or l.nmbb like :search_keyword2)
             $condition
             order by l.nmbb",
-            [
-                'transdate' => $params['transdate'],
-                'search_keyword' => '%'.$params['search_keyword'].'%',
-                'search_keyword2' => '%'.$params['search_keyword'].'%'
-            ]
+            $bindings
         );
 
         $totalHpp   = 0;
@@ -53,7 +68,38 @@ class RptInventory extends BaseModel
     }
 
     function getLapKartuStock($params)
-    {
+    {   
+        $condition = '';
+
+        if (!empty($params['company_id'])) 
+        {
+            $condition = $condition . " and a.company_id=:company_id ";
+            $bindings1 = [
+                'dari1' => $params['dari'],
+                'dari2' => $params['dari'],
+                'dari3' => $params['dari'],
+                'sampai1' => $params['sampai'],
+                'sampai2' => $params['sampai'],
+                'sampai3' => $params['sampai'],
+                'sampai4' => $params['sampai'],
+                'bahan_baku_id' => '%' . $params['search_keyword'] . '%',
+                'company_id' => $params['company_id']
+            ];
+        }
+        else
+        {
+            $bindings1 = [
+                'dari1' => $params['dari'],
+                'dari2' => $params['dari'],
+                'dari3' => $params['dari'],
+                'sampai1' => $params['sampai'],
+                'sampai2' => $params['sampai'],
+                'sampai3' => $params['sampai'],
+                'sampai4' => $params['sampai'],
+                'bahan_baku_id' => '%' . $params['search_keyword'] . '%'
+            ];
+        }
+
         $headers = DB::select(
             "SELECT x.itemid as bahan_baku_id,x.nmbb as bahan_baku_name,x.satuan,
                     x.stock_awal,x.stock_masuk,x.stock_keluar,x.stock_akhir 
@@ -74,7 +120,7 @@ class RptInventory extends BaseModel
                 FROM (
                     SELECT a.itemid, a.transdate, a.fgtrans, a.hpp, a.qty
                     FROM allitem a
-                    WHERE CONVERT(varchar(10),a.transdate,112) <= :sampai4
+                    WHERE CONVERT(varchar(10),a.transdate,112) <= :sampai4 $condition
                 ) AS k
                 LEFT JOIN msbahanbaku l ON k.itemid = l.kdbb
                 GROUP BY k.itemid, l.NmBB, l.satkecil
@@ -82,19 +128,29 @@ class RptInventory extends BaseModel
             WHERE (x.stock_awal + x.stock_masuk + x.stock_keluar + x.stock_akhir) <> 0
             AND x.itemid LIKE :bahan_baku_id
             ORDER BY x.nmbb",
-            [
-                'dari1' => $params['dari'],
-                'dari2' => $params['dari'],
-                'dari3' => $params['dari'],
-                'sampai1' => $params['sampai'],
-                'sampai2' => $params['sampai'],
-                'sampai3' => $params['sampai'],
-                'sampai4' => $params['sampai'],
-                'bahan_baku_id' => '%' . $params['search_keyword'] . '%'
-            ]
+            $bindings1
         );
 
         foreach ($headers as &$header) {
+
+            if (!empty($params['company_id'])) 
+            {
+                $bindings2 = [
+                        'dari' => $params['dari'],
+                        'sampai' => $params['sampai'],
+                        'itemid' => $header->bahan_baku_id,
+                        'company_id' => $params['company_id']
+                ];
+            }
+            else
+            {
+                $bindings2 = [
+                        'dari' => $params['dari'],
+                        'sampai' => $params['sampai'],
+                        'itemid' => $header->bahan_baku_id
+                ];
+            }
+            
             $details = DB::select(
                 "SELECT 
                     k.transdate,
@@ -107,17 +163,13 @@ class RptInventory extends BaseModel
                 FROM (
                     SELECT a.voucherno, a.itemid, a.transdate, a.fgtrans, a.hpp, a.qty,
                         CASE WHEN a.fgtrans < 50 THEN 'BELI' ELSE 'JUAL' END AS fgtransname
-                    FROM allitem a
-                    WHERE CONVERT(varchar(10), a.transdate,112) BETWEEN :dari AND :sampai
+                    FROM allitem a 
+                    WHERE CONVERT(varchar(10), a.transdate,112) BETWEEN :dari AND :sampai $condition
                 ) AS k
                 LEFT JOIN msbahanbaku l ON k.itemid = l.kdbb
                 WHERE k.itemid = :itemid
                 ORDER BY k.transdate, k.voucherno, k.fgtrans",
-                [
-                    'dari' => $params['dari'],
-                    'sampai' => $params['sampai'],
-                    'itemid' => $header->bahan_baku_id
-                ]
+                $bindings2
             );
 
             // Tambahkan running stock berdasarkan stock_awal

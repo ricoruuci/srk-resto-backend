@@ -20,9 +20,9 @@ class JualHd extends BaseModel
     {
         $result = DB::insert(
             "INSERT TrJualHD (nota,tgljual,jamjual,ppn,disc,kdpos,nomeja,jmlorang,
-            cashier,fgbayar,fgbatal,keterangan,paytype,disctype,upddate,upduser,charge,fgfromqb,kdmember,fgstatus)
+            cashier,fgbayar,fgbatal,keterangan,paytype,disctype,upddate,upduser,charge,fgfromqb,kdmember,fgstatus,company_id)
             VALUES (:nota, :transdate, :transdate1, (select top 1 isnull(nmset,0) from setup where kdset='ppn'), 0, 'DL',
-            :nomeja, 0, :cashier, 'T', 'T', :note, 0, 0, getdate(), :upduser, 0, 'T', '00000', :fgstatus) ",
+            :nomeja, 0, :cashier, 'T', 'T', :note, 0, 0, getdate(), :upduser, 0, 'T', '00000', :fgstatus,:company_id) ",
             [
                 'nota' => $params['nota_jual'],
                 'transdate' => $params['transdate'],
@@ -31,7 +31,8 @@ class JualHd extends BaseModel
                 'cashier' => $params['cashier'],
                 'note' => $params['note'],
                 'upduser' => $params['upduser'],
-                'fgstatus' => $params['fgstatus']
+                'fgstatus' => $params['fgstatus'],
+                'company_id' => $params['company_id']
             ]
         );
 
@@ -140,7 +141,7 @@ class JualHd extends BaseModel
         return $result;
     }
 
-    function getDataMeja()
+    function getDataMeja($params)
     {
         $result = DB::select(
             "SELECT distinct isnull(b.nomeja,'') as nomor_meja,b.nota as nota_jual,
@@ -151,13 +152,17 @@ class JualHd extends BaseModel
                  else 'No Data' end as status_name
             from trjualhd b
             where convert(varchar(8),b.tgljual,112) = convert(varchar(8),getdate(),112) and b.fgbayar='T' and b.fgbatal='T'
-            order by isnull(b.nomeja,'') "
+            and b.company_id =:company_id
+            order by isnull(b.nomeja,'') ",
+            [
+                'company_id' => $params['company_id']
+            ]
         );
 
         return $result;
     }
 
-    function cekMejaAktif($id)
+    function cekMejaAktif($id,$company_id)
     {
         $result = DB::selectOne(
             "SELECT distinct isnull(b.nomeja,'') as nomor_meja,b.nota as nota_jual,
@@ -168,9 +173,11 @@ class JualHd extends BaseModel
                  else 'No Data' end as status_name
             from trjualhd b
             where convert(varchar(8),b.tgljual,112) = convert(varchar(8),getdate(),112) and b.fgbayar='T' and b.fgbatal='T'
+            and b.company_id=:company_id
             and isnull(b.nomeja,'')=:id ",
             [
-                'id' => $id
+                'id' => $id,
+                'company_id' => $company_id
             ]
         );
 
@@ -233,9 +240,9 @@ class JualHd extends BaseModel
         return $result;
     }
 
-    public function beforeAutoNumber($transdate)
+    public function beforeAutoNumber($transdate,$company_code)
     {
-        $autoNumber = $this->autoNumber($this->table, 'nota', $transdate, '0000');
+        $autoNumber = $this->autoNumber($this->table, 'nota', $company_code.$transdate, '0000');
 
         return $autoNumber;
     }

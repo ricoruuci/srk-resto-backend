@@ -19,15 +19,16 @@ class BeliHd extends BaseModel
     function insertData($params)
     {
         $result = DB::insert(
-            "INSERT trbelibbhd (nota,kdsupplier,tglbeli,tax,keterangan,upddate,upduser,ttlpb,stpb,ttltax)
-            VALUES (:nota, :kdsupplier, :transdate, :tax, :note, getdate(), :upduser, 0, 0, 0)",
+            "INSERT trbelibbhd (nota,kdsupplier,tglbeli,tax,keterangan,upddate,upduser,ttlpb,stpb,ttltax,company_id)
+            VALUES (:nota, :kdsupplier, :transdate, :tax, :note, getdate(), :upduser, 0, 0, 0,:company_id)",
             [
                 'nota' => $params['nota_beli'],
                 'kdsupplier' => $params['supplier_id'],
                 'transdate' => $params['transdate'],
                 'tax' => $params['ppn'],
                 'note' => $params['note'],
-                'upduser' => $params['upduser']
+                'upduser' => $params['upduser'],
+                'company_id' => $params['company_id']
             ]
         );
 
@@ -60,20 +61,39 @@ class BeliHd extends BaseModel
 
     function getAllData($params)
     {
+        $addCon = ''; // default kosong
+
+        if (!empty($params['company_id'])) 
+        {
+            $addCon = 'and a.company_id =:company_id ';
+            $binding = [
+                'dari' => $params['dari'],
+                'sampai' => $params['sampai'],
+                'company_id' => $params['company_id'],
+                'searchkeyword' => '%'.$params['search_keyword'].'%',
+                'supplierkeyword' => '%'.$params['supplier_keyword'].'%'
+            ];
+        }
+        else
+        {
+            $binding = [
+                'dari' => $params['dari'],
+                'sampai' => $params['sampai'],
+                'searchkeyword' => '%'.$params['search_keyword'].'%',
+                'supplierkeyword' => '%'.$params['supplier_keyword'].'%'
+            ];
+        }
+
         $result = DB::select(
             "SELECT a.nota as nota_beli,a.kdsupplier as supplier_id,b.nmsupplier as supplier_name,
             a.tglbeli as transdate,a.tax as ppn,keterangan as note,a.upddate,a.upduser,
             a.stpb as sub_total,a.ttltax as total_ppn,a.ttlpb as grand_total from trbelibbhd a
             inner join mssupplier b on a.kdsupplier=b.kdsupplier
             where convert(varchar(10),a.tglbeli,112) between :dari and :sampai 
+            $addCon
             and isnull(a.nota,'') like :searchkeyword and isnull(b.nmsupplier,'') like :supplierkeyword 
             order by a.nota ",
-            [
-                'dari' => $params['dari'],
-                'sampai' => $params['sampai'],
-                'searchkeyword' => '%'.$params['search_keyword'].'%',
-                'supplierkeyword' => '%'.$params['supplier_keyword'].'%'
-            ]
+            $binding
         );
 
         return $result;
@@ -144,11 +164,11 @@ class BeliHd extends BaseModel
         return $result;
     }
 
-    public function beforeAutoNumber($transdate)
+    public function beforeAutoNumber($transdate,$company_code)
     {
         $tahunBulan = '/' . substr($transdate, 2, 2) . '/' . substr($transdate, 4, 2) . '/';
 
-        $autoNumber = $this->autoNumber($this->table, 'nota', 'PBL'.$tahunBulan, '0000');
+        $autoNumber = $this->autoNumber($this->table, 'nota', 'B-'.$company_code.$tahunBulan, '0000');
 
         return $autoNumber;
     }

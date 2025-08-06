@@ -44,7 +44,7 @@ class JualController extends Controller
             return $this->responseError('nomor meja tidak ada atau tidak ditemukan', 400);
         }
 
-        $cek = $model_header->cekMejaAktif($request->nomor_meja ?? '');
+        $cek = $model_header->cekMejaAktif($request->nomor_meja ?? '',Auth::user()->currentAccessToken()['company_id']);
 
         if ($cek) {
 
@@ -58,12 +58,13 @@ class JualController extends Controller
             'note' => $request->note ?? '',
             'fgstatus' => $request->fgstatus ?? 0,
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
+            'company_id' => Auth::user()->currentAccessToken()['company_id'],
         ];
 
         DB::beginTransaction();
 
         try {
-            $hasilpoid = $model_header->beforeAutoNumber($request->transdate);
+            $hasilpoid = $model_header->beforeAutoNumber($request->transdate,Auth::user()->currentAccessToken()['company_code']);
 
             $params['nota_jual'] = $hasilpoid;
 
@@ -121,12 +122,13 @@ class JualController extends Controller
 
             $model_detail->deleteAllItem($hasilpoid);
 
-            $model_detail->insertAllItem($hasilpoid);
+            $model_detail->insertAllItem($hasilpoid,Auth::user()->currentAccessToken()['company_id']);
 
             $model_detail->updateAllTransaction([
                 'id' => $hasilpoid,
                 'transdate' => $request->transdate,
-                'fgtrans' => 51
+                'fgtrans' => 51,
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
             ]);
 
             DB::commit();
@@ -159,7 +161,7 @@ class JualController extends Controller
             return $this->responseError('nota jual tidak ada atau tidak ditemukan', 400);
         }
 
-        $cek = $model_meja->cekData($request->nomor_meja ?? '');
+        $cek = $model_meja->cekData($request->nomor_meja ?? '',Auth::user()->currentAccessToken()['company_id']);
 
         if ($cek == false) {
 
@@ -236,12 +238,13 @@ class JualController extends Controller
 
             $model_detail->deleteAllItem($request->nota_jual);
 
-            $model_detail->insertAllItem($request->nota_jual);
+            $model_detail->insertAllItem($request->nota_jual,Auth::user()->currentAccessToken()['company_id']);
 
             $model_detail->updateAllTransaction([
                 'id' => $request->nota_jual,
                 'transdate' => $request->transdate,
-                'fgtrans' => 51
+                'fgtrans' => 51,
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
             ]);
 
             DB::commit();
@@ -369,7 +372,9 @@ class JualController extends Controller
     {
         $model = new JualHd();
 
-        $result = $model->getDataMeja();
+        $result = $model->getDataMeja([
+            'company_id' => Auth::user()->currentAccessToken()['company_id']
+        ]);
 
         $resultPaginated = $this->arrayPaginator($request, $result);
 
