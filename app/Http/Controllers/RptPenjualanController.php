@@ -64,7 +64,7 @@ class RptPenjualanController extends Controller
         {
             $result = $model->getLapPenjualanHarian([
                 'transdate' => $request->input('transdate'),
-                'company_id' => Auth::user()->currentAccessToken()['namauser']
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
             ]);
         }
 
