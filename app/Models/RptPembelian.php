@@ -52,6 +52,8 @@ class RptPembelian extends BaseModel
 
     function getLapHutang($params)
     {
+        $condition = '';
+        
         if (!empty($params['company_id'])) 
         {
             $condition = " and a.company_id=:company_id";
