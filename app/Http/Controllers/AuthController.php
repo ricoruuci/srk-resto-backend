@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         if ($isLoginSuccess == false)
         {
-            return $this->responseError('Invalid username or password', 500);
+            return $this->responseError('Invalid username or password', 400);
         }
         else
         {
