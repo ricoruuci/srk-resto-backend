@@ -23,10 +23,7 @@ class AuthController extends Controller
 
         if ($isLoginSuccess == false)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid username or password'
-            ]);
+            return $this->responseError('Invalid username or password', 500);
         }
         else
         {
