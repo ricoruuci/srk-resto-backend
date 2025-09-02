@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Supplier;
 
-use Illuminate\Foundation\Http\FormRequest;
+ use App\Http\Requests\BaseRequest;
 
-class InsertRequest extends FormRequest
+class InsertRequest extends BaseRequest
 {
     public function authorize()
     {
@@ -14,7 +14,7 @@ class InsertRequest extends FormRequest
     public function rules()
     {
         return [
-            'supplier_name' => 'required|string|max:255',
+            'supplier_name' => 'required|string|max:30',
         ];
     }
 }

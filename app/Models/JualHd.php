@@ -151,11 +151,12 @@ class JualHd extends BaseModel
                  when isnull(b.fgstatus,'0')='2' then 'DELIVERY'
                  else 'No Data' end as status_name
             from trjualhd b
-            where convert(varchar(8),b.tgljual,112) = convert(varchar(8),getdate(),112) and b.fgbayar='T' and b.fgbatal='T'
+            where convert(varchar(8),b.tgljual,112) = :transdate and b.fgbayar='T' and b.fgbatal='T'
             and b.company_id =:company_id
             order by isnull(b.nomeja,'') ",
             [
-                'company_id' => $params['company_id']
+                'company_id' => $params['company_id'],
+                'transdate' => $params['transdate']
             ]
         );
 

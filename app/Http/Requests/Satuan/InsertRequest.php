@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Satuan;
 
-use Illuminate\Foundation\Http\FormRequest;
+ use App\Http\Requests\BaseRequest;
 
-class InsertRequest extends FormRequest
+class InsertRequest extends BaseRequest
 {
     public function authorize()
     {

@@ -98,13 +98,13 @@ class BaseModel extends Model
             select $rek_ar,tgljual,'d',isnull(TTLPj,0),'IDR',1,'T',nota,nota from TrJualHd where fgbatal='T' $addCon4 union all
             select $rek_taxpj,tgljual,'k',isnull(TTLTax,0),'IDR',1,'T',nota,nota from TrJualHd where fgbatal='T' $addCon5 union all
             select $rek_pj,tgljual,'k',isnull(STPj,0),'IDR',1,'T',nota,nota from TrJualHd where fgbatal='T' $addCon6 union all
-
+            /*
             select case when a.PayType=3 then $rek_kas else b.RekeningID end,a.tgljual,'d',isnull(a.TTLPj,0),'IDR',1,'T',a.nota,a.nota from TrJualHd a 
             left join CFMsBank b on a.BankId=b.bankid
             where a.fgbayar='Y' and a.fgbatal='T' $addCon7 union all 
             select $rek_ar,tgljual,'K',isnull(TTLPj,0),'IDR',1,'T',nota,nota from TrJualHd 
             where fgbayar='Y' and fgbatal='T' $addCon8 union all
-
+            */
             select $rek_pb,TglBeli,'d',isnull(STPb,0),'IDR',1,'T',nota,nota from TrBeliBBHd $addCon9 union all 
             select $rek_taxpb,TglBeli,'d',isnull(TTLTax,0),'IDR',1,'T',nota,nota from TrBeliBBHd $addCon10 union all 
             select $rek_ap,TglBeli,'k',isnull(TTLPb,0),'IDR',1,'T',nota,nota $addCon11 from TrBeliBBHd  ";

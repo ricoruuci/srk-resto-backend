@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\RptPembelian;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class GetLapHutangRequest extends FormRequest
+class GetLapHutangRequest extends BaseRequest
 {
     public function authorize()
     {

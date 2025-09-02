@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\RptPenjualan;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class GetLapPenjualanRequest extends FormRequest
+class GetLapPenjualanRequest extends BaseRequest
 {
     public function authorize()
     {

@@ -44,8 +44,9 @@ class BeliHd extends BaseModel
             tax = :tax,
             keterangan = :note,
             upddate = getdate(),
-            upduser = :upduser
-            WHERE nota = :nota and kdsupplier = :kdsupplier",
+            upduser = :upduser,
+            kdsupplier = :kdsupplier
+            WHERE nota = :nota",
             [
                 'nota' => $params['nota_beli'],
                 'transdate' => $params['transdate'],

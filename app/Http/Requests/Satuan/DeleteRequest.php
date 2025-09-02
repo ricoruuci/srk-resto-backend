@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Satuan;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class DeleteRequest extends FormRequest
+class DeleteRequest extends BaseRequest
 {
     public function authorize()
     {

@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\RptInventory;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class GetLapStockRequest extends FormRequest
+class GetLapStockRequest extends BaseRequest
 {
     public function authorize()
     {

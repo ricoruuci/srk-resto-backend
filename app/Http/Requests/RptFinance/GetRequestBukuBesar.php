@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\RptFinance;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class GetRequestBukuBesar extends FormRequest
+class GetRequestBukuBesar extends BaseRequest
 {
     public function authorize()
     {

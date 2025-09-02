@@ -20,6 +20,7 @@ use App\Http\Requests\Jual\UpdateRequest;
 use App\Http\Requests\Jual\UpdatePaymentRequest;
 use App\Http\Requests\Jual\UpdateBatalRequest;
 use App\Http\Requests\Jual\GetRequest;
+use App\Http\Requests\Jual\GetDataMejaRequest;
 
 class JualController extends Controller
 {
@@ -368,12 +369,13 @@ class JualController extends Controller
 
     }
 
-    public function getDataMeja(Request $request)
+    public function getDataMeja(GetDataMejaRequest $request)
     {
         $model = new JualHd();
 
         $result = $model->getDataMeja([
-            'company_id' => Auth::user()->currentAccessToken()['company_id']
+            'company_id' => Auth::user()->currentAccessToken()['company_id'],
+            'transdate' => $request->transdate
         ]);
 
         $resultPaginated = $this->arrayPaginator($request, $result);

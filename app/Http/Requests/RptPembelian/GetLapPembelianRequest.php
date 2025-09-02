@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\RptPembelian;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class GetLapPembelianRequest extends FormRequest
+class GetLapPembelianRequest extends BaseRequest
 {
     public function authorize()
     {

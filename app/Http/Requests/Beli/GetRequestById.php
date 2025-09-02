@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Beli;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class GetRequestById extends FormRequest
+class GetRequestById extends BaseRequest
 {
     public function authorize()
     {

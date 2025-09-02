@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\RptFinance;
+namespace App\Http\Requests\Jual;
 
 use App\Http\Requests\BaseRequest;
 
-class GetRequestNeraca extends BaseRequest
+class GetDataMejaRequest extends BaseRequest
 {
     public function authorize()
     {
@@ -14,7 +14,7 @@ class GetRequestNeraca extends BaseRequest
     public function rules()
     {
         return [
-            'periode' => 'required|date_format:Ymd'
+            'transdate' => 'required|date_format:Ymd',
         ];
     }
 }

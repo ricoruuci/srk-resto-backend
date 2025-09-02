@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\RptFinance;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class GetRequestLabaRugi extends FormRequest
+class GetRequestLabaRugi extends BaseRequest
 {
     public function authorize()
     {

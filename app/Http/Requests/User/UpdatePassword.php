@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\User;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class UpdatePassword extends FormRequest
+class UpdatePassword extends BaseRequest
 {
     public function authorize()
     {

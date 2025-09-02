@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Jual;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class UpdateBatalRequest extends FormRequest
+class UpdateBatalRequest extends BaseRequest
 {
     public function authorize()
     {
