@@ -45,7 +45,7 @@ class JualController extends Controller
             return $this->responseError('nomor meja tidak ada atau tidak ditemukan', 400);
         }
 
-        $cek = $model_header->cekMejaAktif($request->nomor_meja ?? '',Auth::user()->currentAccessToken()['company_id']);
+        $cek = $model_header->cekMejaAktif($request->nomor_meja ?? '',Auth::user()->currentAccessToken()['company_id'],$request->transdate);
 
         if ($cek) {
 
