@@ -16,7 +16,7 @@ class UpdateRequest extends BaseRequest
         return [
             'voucher_id' => 'required|string',
             'transdate' => 'required|date_format:Ymd',
-            'actor' => 'required|string|max:255',
+            'actor' => 'nullable|string|max:255|required_unless:flagkkbb,JU',
             'note' => 'nullable|string|max:255',
             'flagkkbb' => 'required|string|in:KM,KK,BM,BK,JU,APK,APB',
             'bank_id' => 'nullable|required_if:flagkkbb,BM,BK,APB|string',
