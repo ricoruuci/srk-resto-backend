@@ -72,6 +72,14 @@ class BeliController extends Controller
                 return $this->responseError('detail tidak boleh kosong', 400);
             }
 
+            $cek = $model_bb->cekDataSatuan($arrDetail[$i]['bahan_baku_id'] ?? '');
+
+            if ($cek == false) {
+                DB::rollBack();
+
+                return $this->responseError('satuan tidak terdaftar untuk bahan baku ini', 400);
+            }
+
             for ($i = 0; $i < sizeof($arrDetail); $i++) {
 
                 $cek = $model_bb->cekData($arrDetail[$i]['bahan_baku_id'] ?? '');
@@ -187,6 +195,14 @@ class BeliController extends Controller
                 DB::rollBack();
 
                 return $this->responseError('detail tidak boleh kosong', 400);
+            }
+
+            $cek = $model_bb->cekDataSatuan($arrDetail[$i]['bahan_baku_id'] ?? '');
+
+            if ($cek == false) {
+                DB::rollBack();
+
+                return $this->responseError('satuan tidak terdaftar untuk bahan baku ini', 400);
             }
 
             $model_detail->deleteData($request->nota_beli);
