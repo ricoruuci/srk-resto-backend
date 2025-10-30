@@ -24,13 +24,14 @@ class RptPembelianController extends Controller
         $user = new User();
         $cek = $user->cekLevel(Auth::user()->currentAccessToken()['namauser']);
 
-        if ($cek->kdjabatan=='ADM')
+        if ($cek->kdjabatan=='USR')
         {
             $result = $model->getLapPembelian([
                 'dari' => $request->input('dari'),
                 'sampai' => $request->input('sampai'),
                 'search_keyword' => $request->input('search_keyword', ''),
-                'supplier_keyword' => $request->input('supplier_keyword', '')
+                'supplier_keyword' => $request->input('supplier_keyword', ''),
+                'company_id' => Auth::user()->currentAccessToken()['company_id']
             ]);
         }
         else
@@ -40,7 +41,7 @@ class RptPembelianController extends Controller
                 'sampai' => $request->input('sampai'),
                 'search_keyword' => $request->input('search_keyword', ''),
                 'supplier_keyword' => $request->input('supplier_keyword', ''),
-                'company_id' => Auth::user()->currentAccessToken()['company_id']
+                'company_id' => $request->input('company_id', Auth::user()->currentAccessToken()['company_id'])
             ]);
         }
 
@@ -55,15 +56,7 @@ class RptPembelianController extends Controller
         $user = new User();
         $cek = $user->cekLevel(Auth::user()->currentAccessToken()['namauser']);
 
-        if ($cek->kdjabatan=='ADM')
-        {
-            $result = $model->getLapHutang([
-                'transdate' => $request->input('transdate'),
-                'search_keyword' => $request->input('search_keyword', ''),
-                'supplier_keyword' => $request->input('supplier_keyword', '')
-            ]);
-        }
-        else
+        if ($cek->kdjabatan=='USR')
         {
             $result = $model->getLapHutang([
                 'transdate' => $request->input('transdate'),
@@ -72,8 +65,15 @@ class RptPembelianController extends Controller
                 'company_id' => Auth::user()->currentAccessToken()['company_id']
             ]);
         }
-
-        
+        else
+            {
+                $result = $model->getLapHutang([
+                    'transdate' => $request->input('transdate'),
+                    'search_keyword' => $request->input('search_keyword', ''),
+                    'supplier_keyword' => $request->input('supplier_keyword', ''),
+                    'company_id' => $request->input('company_id', Auth::user()->currentAccessToken()['company_id'])
+            ]);
+        }
 
         $resultPaginated = $this->arrayPaginator($request, $result);
 
