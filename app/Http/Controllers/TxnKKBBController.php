@@ -378,7 +378,7 @@ class TxnKKBBController extends Controller
             [
                 'transdate' => $request->input('transdate'),
                 'actor' => $request->input('actor'),
-                'company_id' => $request->input('company_id')
+                'company_id' => $request->input('company_id') ?? Auth::user()->currentAccessToken()['company_id']
             ]
         );
 
