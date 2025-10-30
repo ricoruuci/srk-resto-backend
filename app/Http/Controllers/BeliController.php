@@ -46,13 +46,13 @@ class BeliController extends Controller
             'ppn' => $request->ppn ?? 0,
             'note' => $request->note ?? '',
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
-            'company_id' => Auth::user()->currentAccessToken()['company_id'],
+            'company_id' => $request->company_id ?? Auth::user()->currentAccessToken()['company_id'],
         ];
 
         DB::beginTransaction();
 
         try {
-            $hasilpoid = $model_header->beforeAutoNumber($request->transdate,Auth::user()->currentAccessToken()['company_code']);
+            $hasilpoid = $model_header->beforeAutoNumber($request->transdate,$request->company_code ?? Auth::user()->currentAccessToken()['company_code']);
 
             $params['nota_beli'] = $hasilpoid;
 
@@ -127,13 +127,13 @@ class BeliController extends Controller
 
             $model_detail->deleteAllItem($hasilpoid);
 
-            $model_detail->insertAllItem($hasilpoid,Auth::user()->currentAccessToken()['company_id']);
+            $model_detail->insertAllItem($hasilpoid,$request->company_id ?? Auth::user()->currentAccessToken()['company_id']);
 
             $model_detail->updateAllTransaction([
                 'id' => $hasilpoid,
                 'transdate' => $request->transdate,
                 'fgtrans' => 1,
-                'company_id' => Auth::user()->currentAccessToken()['company_id']
+                'company_id' => $request->company_id ?? Auth::user()->currentAccessToken()['company_id']
             ]);
 
             DB::commit();
@@ -162,6 +162,8 @@ class BeliController extends Controller
             return $this->responseError('nota beli tidak ada atau tidak ditemukan', 400);
         }
 
+        $company_cek = $cek->company_id;
+
         $cek = $model_supplier->cekData($request->supplier_id ?? '');
 
         if ($cek == false) {
@@ -176,7 +178,7 @@ class BeliController extends Controller
             'ppn' => $request->ppn ?? 0,
             'note' => $request->note ?? '',
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
-        ];    
+        ];
 
         DB::beginTransaction();
 
@@ -254,13 +256,13 @@ class BeliController extends Controller
 
             $model_detail->deleteAllItem($request->nota_beli);
 
-            $model_detail->insertAllItem($request->nota_beli,Auth::user()->currentAccessToken()['company_id']);
+            $model_detail->insertAllItem($request->nota_beli,$company_cek);
 
             $model_detail->updateAllTransaction([
                 'id' => $request->nota_beli,
                 'transdate' => $request->transdate,
                 'fgtrans' => 1,
-                'company_id' => Auth::user()->currentAccessToken()['company_id']
+                'company_id' => $company_cek
             ]);
 
             DB::commit();
