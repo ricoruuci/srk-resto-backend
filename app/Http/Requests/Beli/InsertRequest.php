@@ -17,6 +17,7 @@ class InsertRequest extends BaseRequest
             'transdate' => 'required',
             'supplier_id' => 'required|string',
             'ppn' => 'required|numeric|min:0',
+            'disc_amount' => 'required|numeric|min:0',
             'note' => 'nullable|string',
             'detail' => 'nullable|array',
             'detail.*.bahan_baku_id' => 'required|string',

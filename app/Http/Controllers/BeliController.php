@@ -10,6 +10,7 @@ use App\Models\BeliHd;
 use App\Models\Satuan;
 use App\Models\BahanBaku;
 use App\Models\Supplier;
+use App\Models\AllFoto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ArrayPaginator;
@@ -32,6 +33,7 @@ class BeliController extends Controller
         $model_supplier = new Supplier();
         $model_satuan = new Satuan();
         $model_bb = new BahanBaku();
+        $model_allfoto = new AllFoto();
 
         $cek = $model_supplier->cekData($request->supplier_id ?? '');
 
@@ -43,6 +45,7 @@ class BeliController extends Controller
         $params = [
             'transdate' => $request->transdate,
             'supplier_id' => $request->supplier_id,
+            'discamount' => $request->disc_amount ?? 0,
             'ppn' => $request->ppn ?? 0,
             'note' => $request->note ?? '',
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
@@ -116,6 +119,30 @@ class BeliController extends Controller
                 }
             }
 
+            $arrDetailFoto = $request->input('detailfoto');
+
+            $deletefoto = $model_allfoto->deleteData($hasilpoid);
+
+            if (!empty($arrDetailFoto) && is_array($arrDetailFoto)) {
+
+                for ($j = 0; $j < sizeof($arrDetailFoto); $j++) {
+
+                    $insertfoto = $model_allfoto->insertData([
+                        'id' => $hasilpoid,
+                        'foto' => $arrDetailFoto[$j]['foto'],
+                        'keterangan' => 'Bukti Nota Beli '.$hasilpoid,
+                        'fgtrans' => 1,
+                        'upduser' => Auth::user()->currentAccessToken()['namauser']
+                    ]);
+
+                    if ($insertfoto == false) {
+                        DB::rollBack();
+
+                        return $this->responseError('insert foto gagal', 400);
+                    }
+                }
+            }
+
             $hitung = $model_header->hitungTotal($hasilpoid);
 
             $model_header->updateTotal([
@@ -154,6 +181,7 @@ class BeliController extends Controller
         $model_supplier = new Supplier();
         $model_satuan = new Satuan();
         $model_bb = new BahanBaku();
+        $model_allfoto = new AllFoto();
 
         $cek = $model_header->cekData($request->nota_beli ?? '');
 
@@ -174,6 +202,7 @@ class BeliController extends Controller
         $params = [
             'nota_beli' => $request->nota_beli,
             'transdate' => $request->transdate,
+            'discamount' => $request->disc_amount ?? 0,
             'supplier_id' => $request->supplier_id,
             'ppn' => $request->ppn ?? 0,
             'note' => $request->note ?? '',
@@ -242,6 +271,30 @@ class BeliController extends Controller
                     DB::rollBack();
 
                     return $this->responseError('update detail gagal', 400);
+                }
+            }
+
+            $arrDetailFoto = $request->input('detailfoto');
+
+            $deletefoto = $model_allfoto->deleteData($request->nota_beli);
+
+            if (!empty($arrDetailFoto) && is_array($arrDetailFoto)) {
+
+                for ($j = 0; $j < sizeof($arrDetailFoto); $j++) {
+
+                    $insertfoto = $model_allfoto->insertData([
+                        'id' => $request->nota_beli,
+                        'foto' => $arrDetailFoto[$j]['foto'],
+                        'keterangan' => 'Bukti Nota Beli '.$request->nota_beli,
+                        'fgtrans' => 1,
+                        'upduser' => Auth::user()->currentAccessToken()['namauser']
+                    ]);
+
+                    if ($insertfoto == false) {
+                        DB::rollBack();
+
+                        return $this->responseError('insert foto gagal', 400);
+                    }
                 }
             }
 
@@ -315,6 +368,8 @@ class BeliController extends Controller
 
         $model_detail = new BeliDt();
 
+        $model_foto = new AllFoto();
+
         $result = $model_header->getDataById($request->nota_beli ?? '');
 
         if ($result) {
@@ -323,15 +378,21 @@ class BeliController extends Controller
             $detail_result = $model_detail->getDataById($result->nota_beli ?? '');
 
             $detail = !empty($detail_result) ? $detail_result : [];
+
+            $detail_foto_result = $model_foto->getDataById($result->nota_beli ?? '');
+
+            $detailfoto = !empty($detail_foto_result) ? $detail_foto_result : [];
         }
         else {
             $header = [];
             $detail = [];
+            $detailfoto = [];
         }
 
         $response = [
             'header' => $header,
             'detail' => $detail,
+            'detailfoto' => $detailfoto
         ];
 
         return $this->responseData($response);
@@ -342,6 +403,7 @@ class BeliController extends Controller
     {
         $model = new BeliHd();
         $model_detail = new BeliDt();
+        $model_foto = new AllFoto();
 
         $id = $request->nota_beli;
 
@@ -360,6 +422,8 @@ class BeliController extends Controller
             if ($deleteResult == false) {
                 return $this->responseError('Gagal menghapus data Nota Beli', 500);
             }
+
+            $deletefoto = $model_foto->deleteData($id);
 
             DB::commit();
             return $this->responseSuccess('Data Nota Beli berhasil dihapus', 200, ['nota_beli' => $id]);

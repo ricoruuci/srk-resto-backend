@@ -28,6 +28,7 @@ class SetRekeningController extends Controller
             'rek_pembelian' => $request->rek_pembelian,
             'rek_penjualan' => $request->rek_penjualan,
             'rek_ppn_beli' => $request->rek_ppn_beli,
+            'rek_disc_beli' => $request->rek_disc_beli,
             'rek_ppn_jual' => $request->rek_ppn_jual,
             'rek_hutang' => $request->rek_hutang,
             'rek_piutang' => $request->rek_piutang,
@@ -38,6 +39,10 @@ class SetRekeningController extends Controller
         $cek = $model_rekening->cekData($request->rek_pembelian);
         if ($cek == false) {
             return $this->responseError('Rekening Pembelian tidak ada atau tidak ditemukan', 404);
+        }
+        $cek = $model_rekening->cekData($request->rek_disc_beli);
+        if ($cek == false) {
+            return $this->responseError('Rekening Discount Pembelian tidak ada atau tidak ditemukan', 404);
         }
         $cek = $model_rekening->cekData($request->rek_penjualan);
         if ($cek == false) {
@@ -84,7 +89,7 @@ class SetRekeningController extends Controller
             return $this->responseError('Terjadi kesalahan: ' . $e->getMessage(), 500);
         }
     }
-    
+
     public function getListData(GetRequest $request)
     {
         $group_model = new SetRekening();

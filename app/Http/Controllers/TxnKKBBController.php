@@ -10,6 +10,7 @@ use App\Models\Supplier;
 use App\Models\Bank;
 use App\Models\Rekening;
 use App\Models\User;
+use App\Models\AllFoto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ArrayPaginator;
@@ -33,6 +34,7 @@ class TxnKKBBController extends Controller
         $msrekening = new Rekening();
         $msbank = new Bank();
         $mssupplier = new Supplier();
+        $model_allfoto = new AllFoto();
 
         if ($request->input('flagkkbb')=='JU' and $request->input('total')<>0){
             return $this->responseError('Transaksi Jurnal Umum harus memiliki total 0', 400);
@@ -131,6 +133,30 @@ class TxnKKBBController extends Controller
                 }
             }
 
+            $arrDetailFoto = $request->input('detailfoto');
+
+            $deletefoto = $model_allfoto->deleteData($hasilvoucherid);
+
+            if (!empty($arrDetailFoto) && is_array($arrDetailFoto)) {
+
+                for ($j = 0; $j < sizeof($arrDetailFoto); $j++) {
+
+                    $insertfoto = $model_allfoto->insertData([
+                        'id' => $hasilvoucherid,
+                        'foto' => $arrDetailFoto[$j]['foto'],
+                        'keterangan' => 'Bukti Transaksi Nota '.$hasilvoucherid,
+                        'fgtrans' => 2,
+                        'upduser' => Auth::user()->currentAccessToken()['namauser']
+                    ]);
+
+                    if ($insertfoto == false) {
+                        DB::rollBack();
+
+                        return $this->responseError('insert foto gagal', 400);
+                    }
+                }
+            }
+
             DB::commit();
             return $this->responseSuccess('Data Transaksi berhasil disimpan', 200, ['Voucher' => $hasilvoucherid]);
 
@@ -193,6 +219,7 @@ class TxnKKBBController extends Controller
     {
         $cfheader = new CFTrKKBBHd();
         $cfdetail = new CFTrKKBBDt();
+        $model_foto = new AllFoto();
 
         $resultheader = $cfheader->getdata(
             [
@@ -200,18 +227,32 @@ class TxnKKBBController extends Controller
             ]
         );
 
-        $resultdetail = $cfdetail->getdata(
-            [
-                'voucher_id' => $request->input('voucher_id')
-            ]
-        );
+        if ($resultheader) {
+            $header = $resultheader;
 
-        $result = [
-            'header' => $resultheader,
-            'detail' => $resultdetail
+            $detail_result = $cfdetail->getdata([
+                'voucher_id' => $request->input('voucher_id') ?? ''
+            ]);
+
+            $detail = !empty($detail_result) ? $detail_result : [];
+
+            $detail_foto_result = $model_foto->getDataById($request->input('voucher_id') ?? '');
+
+            $detailfoto = !empty($detail_foto_result) ? $detail_foto_result : [];
+        }
+        else {
+            $header = [];
+            $detail = [];
+            $detailfoto = [];
+        }
+
+        $response = [
+            'header' => $header,
+            'detail' => $detail,
+            'detailfoto' => $detailfoto
         ];
 
-        return $this->responseData($result);
+        return $this->responseData($response);
 
     }
 
@@ -222,6 +263,7 @@ class TxnKKBBController extends Controller
         $msrekening = new Rekening();
         $msbank = new Bank();
         $mssupplier = new Supplier();
+        $model_allfoto = new AllFoto();
 
         if ($request->input('flagkkbb')=='JU' and $request->input('total')<>0){
             return $this->responseError('Transaksi Jurnal Umum harus memiliki total 0', 400);
@@ -330,6 +372,30 @@ class TxnKKBBController extends Controller
 
             }
 
+            $arrDetailFoto = $request->input('detailfoto');
+
+            $deletefoto = $model_allfoto->deleteData($request->input('voucher_id'));
+
+            if (!empty($arrDetailFoto) && is_array($arrDetailFoto)) {
+
+                for ($j = 0; $j < sizeof($arrDetailFoto); $j++) {
+
+                    $insertfoto = $model_allfoto->insertData([
+                        'id' => $request->input('voucher_id'),
+                        'foto' => $arrDetailFoto[$j]['foto'],
+                        'keterangan' => 'Bukti Transaksi Nota '.$request->input('voucher_id'),
+                        'fgtrans' => 2,
+                        'upduser' => Auth::user()->currentAccessToken()['namauser']
+                    ]);
+
+                    if ($insertfoto == false) {
+                        DB::rollBack();
+
+                        return $this->responseError('insert foto gagal', 400);
+                    }
+                }
+            }
+
             DB::commit();
             return $this->responseSuccess('Data Transaksi berhasil diupdate', 200, ['Voucher' => $request->input('voucher_id')]);
 
@@ -344,6 +410,7 @@ class TxnKKBBController extends Controller
     public function deleteData(DeleteRequest $request)
     {
         $cfheader = new CFTrKKBBHd();
+        $model_allfoto = new AllFoto();
 
         $id = $request->input('voucher_id');
 
@@ -361,6 +428,8 @@ class TxnKKBBController extends Controller
             if ($deleted == false) {
                 return $this->responseError('Gagal menghapus data Transaksi', 500);
             }
+
+            $deletefoto = $model_allfoto->deleteData($id);
 
             DB::commit();
             return $this->responseSuccess('Data Transaksi berhasil dihapus', 200, ['Voucher' => $id]);
