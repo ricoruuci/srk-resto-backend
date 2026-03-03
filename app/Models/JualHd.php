@@ -149,7 +149,7 @@ class JualHd extends BaseModel
             case when isnull(b.fgstatus,'0')='0' then 'DINE IN'
                  when isnull(b.fgstatus,'0')='1' then 'TAKE AWAY'
                  when isnull(b.fgstatus,'0')='2' then 'DELIVERY'
-                 else 'No Data' end as status_name
+                 else 'No Data' end as status_name,b.tgljual as transdate
             from trjualhd b
             where convert(varchar(8),b.tgljual,112) <= :transdate and b.fgbayar='T' and b.fgbatal='T'
             and b.company_id =:company_id
@@ -171,7 +171,7 @@ class JualHd extends BaseModel
             case when isnull(b.fgstatus,'0')='0' then 'DINE IN'
                  when isnull(b.fgstatus,'0')='1' then 'TAKE AWAY'
                  when isnull(b.fgstatus,'0')='2' then 'DELIVERY'
-                 else 'No Data' end as status_name
+                 else 'No Data' end as status_name,b.tgljual as transdate
             from trjualhd b
             where convert(varchar(8),b.tgljual,112) = :transdate and b.fgbayar='T' and b.fgbatal='T'
             and b.company_id=:company_id
