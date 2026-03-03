@@ -123,7 +123,7 @@ class JualHd extends BaseModel
                  when isnull(a.fgstatus,'0')='1' then 'TAKE AWAY'
                  when isnull(a.fgstatus,'0')='2' then 'DELIVERY'
                  else 'No Data' end as status_name,
-            case when a.paytype='0' then 'QRIS' 
+            case when a.paytype='0' then 'QRIS'
                  when a.paytype='1' then 'Debit Card'
                  when a.paytype='2' then 'Credit Card'
                  when a.paytype='3' then 'Cash'
@@ -151,7 +151,7 @@ class JualHd extends BaseModel
                  when isnull(b.fgstatus,'0')='2' then 'DELIVERY'
                  else 'No Data' end as status_name
             from trjualhd b
-            where convert(varchar(8),b.tgljual,112) = :transdate and b.fgbayar='T' and b.fgbatal='T'
+            where convert(varchar(8),b.tgljual,112) <= :transdate and b.fgbayar='T' and b.fgbatal='T'
             and b.company_id =:company_id
             order by isnull(b.nomeja,'') ",
             [
