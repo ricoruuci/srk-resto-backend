@@ -19,8 +19,8 @@ class BeliHd extends BaseModel
     function insertData($params)
     {
         $result = DB::insert(
-            "INSERT trbelibbhd (nota,kdsupplier,tglbeli,tax,keterangan,upddate,upduser,ttlpb,stpb,ttltax,company_id, discamount)
-            VALUES (:nota, :kdsupplier, :transdate, :tax, :note, getdate(), :upduser, 0, 0, 0,:company_id, :discamount)",
+            "INSERT trbelibbhd (nota,kdsupplier,tglbeli,tax,keterangan,upddate,upduser,ttlpb,stpb,ttltax,company_id, discamount, notecustome)
+            VALUES (:nota, :kdsupplier, :transdate, :tax, :note, getdate(), :upduser, 0, 0, 0,:company_id, :discamount, :notecustome)",
             [
                 'nota' => $params['nota_beli'],
                 'kdsupplier' => $params['supplier_id'],
@@ -29,7 +29,8 @@ class BeliHd extends BaseModel
                 'note' => $params['note'],
                 'upduser' => $params['upduser'],
                 'company_id' => $params['company_id'],
-                'discamount' => $params['discamount']
+                'discamount' => $params['discamount'],
+                'notecustome' => $params['note_custom']
             ]
         );
 
@@ -47,7 +48,8 @@ class BeliHd extends BaseModel
             upddate = getdate(),
             upduser = :upduser,
             kdsupplier = :kdsupplier,
-            discamount = :discamount
+            discamount = :discamount,
+            notecustome = :notecustome
             WHERE nota = :nota",
             [
                 'nota' => $params['nota_beli'],
@@ -56,7 +58,8 @@ class BeliHd extends BaseModel
                 'note' => $params['note'],
                 'upduser' => $params['upduser'],
                 'kdsupplier' => $params['supplier_id'],
-                'discamount' => $params['discamount']
+                'discamount' => $params['discamount'],
+                'notecustome' => $params['note_custom']
             ]
         );
 
@@ -92,7 +95,7 @@ class BeliHd extends BaseModel
             "SELECT a.nota as nota_beli,a.kdsupplier as supplier_id,b.nmsupplier as supplier_name,
             a.tglbeli as transdate,a.tax as ppn,keterangan as note,a.upddate,a.upduser,
             a.stpb as sub_total,isnull(a.discamount,0) as disc_amount, a.ttltax as total_ppn,a.ttlpb as grand_total,
-            a.company_id,c.company_code,c.company_name,c.company_address
+            a.company_id,c.company_code,c.company_name,c.company_address, a.notecustome as note_custom
             from trbelibbhd a
             inner join mssupplier b on a.kdsupplier=b.kdsupplier
             left join mscabang c on a.company_id=c.company_id
@@ -112,7 +115,7 @@ class BeliHd extends BaseModel
             "SELECT a.nota as nota_beli,a.kdsupplier as supplier_id,b.nmsupplier as supplier_name,
             a.tglbeli as transdate,a.tax as ppn,keterangan as note,a.upddate,a.upduser,
             a.stpb as sub_total,isnull(a.discamount,0) as disc_amount, a.ttltax as total_ppn,a.ttlpb as grand_total,
-            a.company_id,c.company_code,c.company_name,c.company_address
+            a.company_id,c.company_code,c.company_name,c.company_address, a.notecustome as note_custom
             from trbelibbhd a
             inner join mssupplier b on a.kdsupplier=b.kdsupplier
             left join mscabang c on a.company_id=c.company_id

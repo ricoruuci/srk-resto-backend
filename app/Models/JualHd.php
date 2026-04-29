@@ -20,9 +20,9 @@ class JualHd extends BaseModel
     {
         $result = DB::insert(
             "INSERT TrJualHD (nota,tgljual,jamjual,ppn,disc,kdpos,nomeja,jmlorang,
-            cashier,fgbayar,fgbatal,keterangan,paytype,disctype,upddate,upduser,charge,fgfromqb,kdmember,fgstatus,company_id)
+            cashier,fgbayar,fgbatal,keterangan,paytype,disctype,upddate,upduser,charge,fgfromqb,kdmember,fgstatus,company_id,notecustome)
             VALUES (:nota, :transdate, :transdate1, (select top 1 isnull(nmset,0) from setup where kdset='ppn'), 0, 'DL',
-            :nomeja, 0, :cashier, 'T', 'T', :note, 0, 0, getdate(), :upduser, 0, 'T', '00000', :fgstatus,:company_id) ",
+            :nomeja, 0, :cashier, 'T', 'T', :note, 0, 0, getdate(), :upduser, 0, 'T', '00000', :fgstatus,:company_id, :notecustome) ",
             [
                 'nota' => $params['nota_jual'],
                 'transdate' => $params['transdate'],
@@ -32,7 +32,8 @@ class JualHd extends BaseModel
                 'note' => $params['note'],
                 'upduser' => $params['upduser'],
                 'fgstatus' => $params['fgstatus'],
-                'company_id' => $params['company_id']
+                'company_id' => $params['company_id'],
+                'notecustome' => $params['note_custom']
             ]
         );
 
@@ -51,7 +52,8 @@ class JualHd extends BaseModel
             keterangan = :note,
             upddate = getdate(),
             upduser = :upduser,
-            fgstatus = :fgstatus
+            fgstatus = :fgstatus,
+            notecustome = :notecustome
             WHERE nota = :nota",
             [
                 'nota' => $params['nota_jual'],
@@ -61,7 +63,8 @@ class JualHd extends BaseModel
                 'cashier' => $params['cashier'],
                 'note' => $params['note'],
                 'upduser' => $params['upduser'],
-                'fgstatus' => $params['fgstatus']
+                'fgstatus' => $params['fgstatus'],
+                'notecustome' => $params['note_custom']
             ]
         );
 
@@ -129,7 +132,8 @@ class JualHd extends BaseModel
                  when a.paytype='3' then 'Cash'
                  else 'No Data' end as payment_type_name,
             a.upddate,
-            a.upduser
+            a.upduser,
+            a.notecustome as note_custom
             from trjualhd a
             left join msposisi b on a.kdpos=b.kdpos
             where a.nota = :id",

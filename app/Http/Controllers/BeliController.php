@@ -48,6 +48,7 @@ class BeliController extends Controller
             'discamount' => $request->disc_amount ?? 0,
             'ppn' => $request->ppn ?? 0,
             'note' => $request->note ?? '',
+            'note_custom' => $request->note_custom ?? '',
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
             'company_id' => $request->company_id ?? Auth::user()->currentAccessToken()['company_id'],
         ];
@@ -109,6 +110,7 @@ class BeliController extends Controller
                     'qty' => $arrDetail[$i]['qty'],
                     'price' => $arrDetail[$i]['price'],
                     'satuan' => $arrDetail[$i]['satuan'],
+                    'tglkirim' => $arrDetail[$i]['tglkirim'] ?? null,
                     'upduser' => Auth::user()->currentAccessToken()['namauser']
                 ]);
 
@@ -206,6 +208,7 @@ class BeliController extends Controller
             'supplier_id' => $request->supplier_id,
             'ppn' => $request->ppn ?? 0,
             'note' => $request->note ?? '',
+            'note_custom' => $request->note_custom ?? '',
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
         ];
 
@@ -264,6 +267,7 @@ class BeliController extends Controller
                     'qty' => $arrDetail[$i]['qty'],
                     'price' => $arrDetail[$i]['price'],
                     'satuan' => $arrDetail[$i]['satuan'],
+                    'tglkirim' => $arrDetail[$i]['tglkirim'] ?? null,
                     'upduser' => Auth::user()->currentAccessToken()['namauser']
                 ]);
 
