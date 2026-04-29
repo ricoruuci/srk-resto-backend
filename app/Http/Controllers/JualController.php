@@ -57,6 +57,7 @@ class JualController extends Controller
             'nomor_meja' => $request->nomor_meja,
             'cashier' => Auth::user()->currentAccessToken()['namauser'],
             'note' => $request->note ?? '',
+            'note_custom' => $request->note_custom ?? '',
             'fgstatus' => $request->fgstatus ?? 0,
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
             'company_id' => Auth::user()->currentAccessToken()['company_id'],
@@ -102,6 +103,7 @@ class JualController extends Controller
                     'note' => $arrDetail[$i]['note'],
                     'qty' => $arrDetail[$i]['qty'],
                     'price' => $arrDetail[$i]['price'],
+                    'tglkirim' => $arrDetail[$i]['tglkirim'] ?? null,
                     'upduser' => Auth::user()->currentAccessToken()['namauser']
                 ]);
 
@@ -176,6 +178,7 @@ class JualController extends Controller
             'fgstatus' => $request->fgstatus ?? 0,
             'cashier' => Auth::user()->currentAccessToken()['namauser'],
             'note' => $request->note ?? '',
+            'note_custom' => $request->note_custom ?? '',
             'upduser' => Auth::user()->currentAccessToken()['namauser'],
         ];
 
@@ -218,6 +221,7 @@ class JualController extends Controller
                     'note' => $arrDetail[$i]['note'],
                     'qty' => $arrDetail[$i]['qty'],
                     'price' => $arrDetail[$i]['price'],
+                    'tglkirim' => $arrDetail[$i]['tglkirim'] ?? null,
                     'upduser' => Auth::user()->currentAccessToken()['namauser']
                 ]);
 

@@ -20,9 +20,9 @@ class BeliDt extends BaseModel
     {
         $result = DB::insert(
             "INSERT INTO trbelibbdt
-            (nota, kdsupplier, kdbb, jml, harga, disc, upddate, upduser, kdsat)
+            (nota, kdsupplier, kdbb, jml, harga, disc, upddate, upduser, kdsat, tglkirim)
             VALUES
-            (:nota, :kdsupplier, :kdbb, :jml, :harga, 0, getdate(), :upduser, :kdsat)",
+            (:nota, :kdsupplier, :kdbb, :jml, :harga, 0, getdate(), :upduser, :kdsat, :tglkirim)",
             [
                 'nota' => $params['nota_beli'],
                 'kdsupplier' => $params['supplier_id'],
@@ -30,7 +30,8 @@ class BeliDt extends BaseModel
                 'jml' => $params['qty'],
                 'harga' => $params['price'],
                 'upduser' => $params['upduser'],
-                'kdsat' => $params['satuan']
+                'kdsat' => $params['satuan'],
+                'tglkirim' => $params['tglkirim']
             ]
         );
 
@@ -61,6 +62,7 @@ class BeliDt extends BaseModel
             a.harga as price,
             a.jml*a.harga as total,
             a.kdsat as satuan,
+            a.tglkirim,
             a.upddate,
             a.upduser
             from trbelibbdt a

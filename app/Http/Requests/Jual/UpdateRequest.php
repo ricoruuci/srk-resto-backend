@@ -19,12 +19,14 @@ class UpdateRequest extends BaseRequest
             'nomor_meja' => 'required|string',
             'cashier' => 'required|string',
             'note' => 'nullable|string',
+            'note_custom' => 'nullable|string',
             'fgstatus' => 'required|in:0,1,2',
             'detail' => 'nullable|array',
             'detail.*.menu_id' => 'required|string',
             'detail.*.qty' => 'required|numeric|min:0',
             'detail.*.price' => 'required|numeric|min:0',
             'detail.*.note' => 'nullable|string',
+            'detail.*.tglkirim' => 'nullable|date',
         ];
     }
 }

@@ -20,11 +20,13 @@ class UpdateRequest extends BaseRequest
             'disc_amount' => 'required|numeric|min:0',
             'ppn' => 'required|numeric|min:0',
             'note' => 'nullable|string',
+            'note_custom' => 'nullable|string',
             'detail' => 'nullable|array',
             'detail.*.bahan_baku_id' => 'required|string',
             'detail.*.qty' => 'required|numeric|min:0',
             'detail.*.price' => 'required|numeric|min:0',
             'detail.*.satuan' => 'required|string',
+            'detail.*.tglkirim' => 'nullable|date',
         ];
     }
 }
