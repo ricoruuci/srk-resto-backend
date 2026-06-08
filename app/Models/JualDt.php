@@ -21,9 +21,9 @@ class JualDt extends BaseModel
     {
         $result = DB::insert(
             "INSERT INTO trjualdt
-            (nota, nodetil, kdmenu, jumlah, harga, disc, discfrom, upddate, upduser, fgprint, tglkirim)
+            (nota, nodetil, kdmenu, jumlah, harga, disc, discfrom, upddate, upduser, fgprint, tglkirim, keterangan)
             VALUES
-            (:nota, :urut, :kdmenu, :qty, :price, 0, 'H', getdate(), :upduser, 0, :tglkirim)",
+            (:nota, :urut, :kdmenu, :qty, :price, 0, 'H', getdate(), :upduser, 0, :tglkirim, :note)",
             [
                 'nota' => $params['nota_jual'],
                 'urut' => $params['urut'],
@@ -31,7 +31,8 @@ class JualDt extends BaseModel
                 'qty' => $params['qty'],
                 'price' => $params['price'],
                 'upduser' => $params['upduser'],
-                'tglkirim' => $params['tglkirim']
+                'tglkirim' => $params['tglkirim'],
+                'note' => $params['note'] ?? null
             ]
         );
 
