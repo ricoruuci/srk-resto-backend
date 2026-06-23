@@ -52,7 +52,7 @@ class CFTrKKBBHd extends BaseModel //nama class
 
         $addCon = ''; // default kosong
 
-        if (!empty($params['company_id']))
+        if (!empty($param['company_id']))
         {
             $addCon = 'and a.company_id =:company_id ';
             $binding = [
@@ -96,7 +96,7 @@ class CFTrKKBBHd extends BaseModel //nama class
 			convert(varchar(10),a.transdate,112) between :dari and :sampai and a.flagkkbb=:flagkkbb
             $addCon
             and isnull(a.bankid,'') like :bankid and isnull(a.actor,'') like :actorkeyword and a.voucherid like :voucherkeyword
-            order by a.transdate $order",
+            order by a.voucherid $order",
             $binding
         );
 
