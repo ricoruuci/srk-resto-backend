@@ -133,9 +133,11 @@ class JualHd extends BaseModel
                  else 'No Data' end as payment_type_name,
             a.upddate,
             a.upduser,
-            a.notecustome as note_custom
+            a.notecustome as note_custom,
+            c.company_name
             from trjualhd a
             left join msposisi b on a.kdpos=b.kdpos
+            left join mscabang c on a.company_id=c.company_id
             where a.nota = :id",
             [
                 'id' => $id
